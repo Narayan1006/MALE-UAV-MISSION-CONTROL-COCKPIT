@@ -1,0 +1,5 @@
+{
+  "classifier_weighted_f1": 0.9368,
+  "rul_mae_seconds": 63.62,
+  "rul_rmse_seconds": 108.35
+}

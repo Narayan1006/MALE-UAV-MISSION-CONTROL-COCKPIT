@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MALE UAV Engine Digital Twin | Mission Control Cockpit</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js for High-Frequency Telemetry & XAI Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="gcs-container">
+    
+    <!-- =======================================================================
+         1. TOP NAVIGATION & MISSION CLOCK HEADER
+         ======================================================================= -->
+    <header class="gcs-header">
+      <div class="header-branding">
+        <div class="status-indicator live" id="liveStatusIndicator"></div>
+        <div>
+          <h1>🦅 MALE UAV MISSION CONTROL COCKPIT</h1>
+          <span class="header-subtitle">DRDO SIH26054 | Real-Time Physics Digital Twin, Diagnostics & Explainable AI (TreeSHAP)</span>
+        </div>
+      </div>
+
+      <div class="header-actions-bar">
+        <button id="btnOpenPreflight" class="btn-preflight">🛫 PRE-FLIGHT CHECK</button>
+
+        <div class="mode-tabs">
+          <button id="tabLive" class="tab-btn active">🎮 Live Twin</button>
+          <button id="tabReplay" class="tab-btn">📼 Mission Replay</button>
+        </div>
+
+        <div class="mission-time-badge" id="missionTimeDisplay">T+ 00:00</div>
+
+        <div class="backend-pill online" id="backendPill">
+          <span class="dot-status"></span>
+          <span id="backendStatusLabel">ONLINE | 12ms</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- =======================================================================
+         2. TOP DATA QUALITY & ROBUSTNESS STRIP
+         ======================================================================= -->
+    <div class="data-quality-strip">
+      <div class="dq-group">
+        <div class="dq-item">
+          <span>Data Integrity:</span>
+          <div class="dq-health-bar">
+            <div class="dq-health-fill" id="dqHealthFill" style="width: 100%;"></div>
+          </div>
+          <strong id="txtDqHealth" style="color: var(--accent-green); font-family: var(--font-mono);">100%</strong>
+        </div>
+        <div class="dq-item">
+          <span>Packet Loss:</span>
+          <span id="txtDqLoss" class="badge-tag tag-ok">0%</span>
+        </div>
+        <div class="dq-item">
+          <span>Imputed Channels:</span>
+          <span id="txtDqImputed" class="badge-tag tag-ok">0 Imputed</span>
+        </div>
+        <div class="dq-item" id="driftAlertGroup" style="display: none;">
+          <span class="badge-tag tag-warn">⚠️ SENSOR DRIFT SUSPECTED</span>
+        </div>
+      </div>
+      <div class="dq-group">
+        <span>Channel Guard: <strong>Active (Z-Score 3.5σ)</strong></span>
+        <span style="color: var(--accent-sky);">⚡ 1 Hz Telemetry Sync</span>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         3. PERFORMANCE PROFILER RIBBON (HUD)
+         ======================================================================= -->
+    <div class="perf-ribbon">
+      <div class="perf-metrics-wrap">
+        <div class="perf-stat">
+          <span class="perf-label">Pipeline Latency:</span>
+          <span class="perf-value" id="perfLatencyVal">13.9 ms</span>
+        </div>
+        <div class="perf-stat">
+          <span class="perf-label">Throughput:</span>
+          <span class="perf-value" id="perfRpsVal">17.4 RPS</span>
+        </div>
+        <div class="perf-stat">
+          <span class="perf-label">Grade:</span>
+          <span class="badge-tag tag-ok" id="perfGradeBadge">EXCELLENT ⭐️</span>
+        </div>
+        <div class="perf-stat">
+          <span class="perf-label">Process RAM:</span>
+          <span class="perf-value" id="perfRamVal">408 MB</span>
+        </div>
+      </div>
+
+      <div class="perf-dots">
+        <div class="perf-dot-item" title="Isolation Forest"><span class="pdot"></span> Anomaly</div>
+        <div class="perf-dot-item" title="XGBoost 7-Class"><span class="pdot"></span> Classifier</div>
+        <div class="perf-dot-item" title="XGBoost Regressor"><span class="pdot"></span> RUL</div>
+        <div class="perf-dot-item" title="TreeSHAP Engine"><span class="pdot"></span> TreeSHAP</div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         4. INTERACTIVE CONTROL DECKS (LIVE & REPLAY)
+         ======================================================================= -->
+    
+    <!-- Panel 1: Live Interactive Controls -->
+    <div id="deckLive" class="control-deck active">
+      <div class="deck-section">
+        <div class="control-label">
+          <span>🎮 Throttle Command</span>
+          <span id="txtThrottle" class="control-val">70%</span>
+        </div>
+        <input type="range" id="sliderThrottle" min="0" max="100" value="70" class="gcs-slider">
+      </div>
+
+      <div class="deck-section">
+        <div class="control-label">
+          <span>🏔️ Flight Altitude</span>
+          <span id="txtAltitude" class="control-val">1,500 m</span>
+        </div>
+        <input type="range" id="sliderAltitude" min="0" max="7500" step="100" value="1500" class="gcs-slider">
+      </div>
+
+      <div class="deck-section" style="flex: 2;">
+        <div class="control-label">
+          <span>⚡ Real-Time Fault Injection</span>
+          <span id="txtSeverity" class="control-val" style="color: var(--accent-danger);">0% (Nominal)</span>
+        </div>
+        <div class="fault-buttons-grid">
+          <button class="btn-fault active" data-fault="none">✅ Nominal</button>
+          <button class="btn-fault" data-fault="cooling">❄️ Cooling</button>
+          <button class="btn-fault" data-fault="lubrication">🛢️ Oil Leak</button>
+          <button class="btn-fault" data-fault="injector">💉 Injector</button>
+          <button class="btn-fault" data-fault="misfire">🔥 Misfire</button>
+          <button class="btn-fault" data-fault="sensor_drift">📡 Drift</button>
+          <button class="btn-fault" data-fault="vibration">📳 Vibration</button>
+        </div>
+        <div class="fault-presets">
+          <span style="font-size: 0.62rem; color: var(--text-dim); align-self: center;">Presets:</span>
+          <button class="btn-preset" data-sev="30">Mild (30%)</button>
+          <button class="btn-preset" data-sev="65">Moderate (65%)</button>
+          <button class="btn-preset" data-sev="90">Severe (90%)</button>
+          <button class="btn-preset" data-sev="0">Clear</button>
+          <input type="range" id="sliderSeverity" min="0" max="100" value="0" class="gcs-slider slider-danger" style="flex: 1; margin-left: 8px;">
+        </div>
+      </div>
+
+      <div class="deck-actions">
+        <button id="btnLiveStart" class="btn-gcs btn-primary">▶ Start Twin</button>
+        <button id="btnLivePause" class="btn-gcs">⏸ Pause</button>
+        <button id="btnLiveReset" class="btn-gcs btn-reset">🔄 Reset</button>
+      </div>
+    </div>
+
+    <!-- Panel 2: Flight Mission Replay Controls -->
+    <div id="deckReplay" class="control-deck">
+      <div class="deck-section" style="flex: 2;">
+        <label for="missionSelect" style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Select Pre-Recorded Flight Mission (32 Scenarios):</label>
+        <select id="missionSelect" class="gcs-select">
+          <option value="">Loading flight missions...</option>
+        </select>
+      </div>
+
+      <div class="deck-section" style="flex: 1;">
+        <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Replay Playback Speed:</label>
+        <div class="speed-buttons">
+          <button class="btn-speed" data-speed="1">1x</button>
+          <button class="btn-speed active" data-speed="5">5x</button>
+          <button class="btn-speed" data-speed="15">15x</button>
+        </div>
+      </div>
+
+      <div class="deck-actions" style="margin-top: 14px;">
+        <button id="btnReplayPlay" class="btn-gcs btn-primary">▶ Start Replay</button>
+        <button id="btnReplayPause" class="btn-gcs">⏸ Pause</button>
+        <button id="btnReplayReset" class="btn-gcs btn-reset">🔄 Reset</button>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         5. MAIN MISSION COCKPIT 12-COLUMN GRID
+         ======================================================================= -->
+    <main class="cockpit-grid">
+
+      <!-- ===================================================================
+           LEFT COLUMN: Engine Physical State & Subsystem Health
+           =================================================================== -->
+      <div class="cockpit-column">
+        <section class="card" style="flex: 1;">
+          <div class="card-header">
+            <span>Engine Subsystem Health Map</span>
+            <span id="systemStatusBadge" class="badge-tag tag-ok">NOMINAL</span>
+          </div>
+          <div class="card-body">
+            
+            <!-- Key Metric Tiles -->
+            <div class="metric-tiles-grid">
+              <div class="metric-tile">
+                <div class="metric-label">Composite Health</div>
+                <div id="valHealthIndex" class="metric-value" style="color: var(--accent-green);">1.00</div>
+                <div class="metric-unit">Index [0.0 - 1.0]</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Anomaly Score</div>
+                <div id="valAnomalyScore" class="metric-value" style="color: var(--accent-cyan);">0.05</div>
+                <div class="metric-unit">Isolation Forest</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Engine RPM</div>
+                <div id="valRPM" class="metric-value">1,750</div>
+                <div class="metric-unit">RPM (Max 2,700)</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Cylinder Head Temp</div>
+                <div id="valCHT" class="metric-value" style="color: var(--accent-orange);">140.5 °C</div>
+                <div class="metric-unit">Redline 260 °C</div>
+              </div>
+            </div>
+
+            <!-- Subsystem Health Nodes -->
+            <div class="subsystem-grid">
+              <div class="subsystem-node" id="nodeCylinders">
+                <div class="node-icon">🔥</div>
+                <div class="node-info">
+                  <div class="node-name">Cylinders & Combustion</div>
+                  <div id="statusCylinders" class="node-status nominal">100% HEALTHY</div>
+                </div>
+              </div>
+              <div class="subsystem-node" id="nodeFuel">
+                <div class="node-icon">💉</div>
+                <div class="node-info">
+                  <div class="node-name">Fuel Injection System</div>
+                  <div id="statusFuel" class="node-status nominal">100% HEALTHY</div>
+                </div>
+              </div>
+              <div class="subsystem-node" id="nodeOil">
+                <div class="node-icon">🛢️</div>
+                <div class="node-info">
+                  <div class="node-name">Lubrication & Oil Pump</div>
+                  <div id="statusOil" class="node-status nominal">100% HEALTHY</div>
+                </div>
+              </div>
+              <div class="subsystem-node" id="nodeCooling">
+                <div class="node-icon">❄️</div>
+                <div class="node-info">
+                  <div class="node-name">Cooling Air / Jacket</div>
+                  <div id="statusCooling" class="node-status nominal">100% HEALTHY</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Digital Twin Residual Gauges -->
+            <div class="residuals-box">
+              <div class="residual-title">Digital Twin Residual Deviation (Physical vs Nominal):</div>
+              <div class="residual-gauges-grid">
+                <div class="res-gauge-item">
+                  <div class="res-g-label">CHT Δ</div>
+                  <div class="res-g-val" id="resCHT">+0.0 °C</div>
+                </div>
+                <div class="res-gauge-item">
+                  <div class="res-g-label">EGT Δ</div>
+                  <div class="res-g-val" id="resEGT">+0.0 °C</div>
+                </div>
+                <div class="res-gauge-item">
+                  <div class="res-g-label">OilP Δ</div>
+                  <div class="res-g-val" id="resOilP">0.0 psi</div>
+                </div>
+                <div class="res-gauge-item">
+                  <div class="res-g-label">Vib Δ</div>
+                  <div class="res-g-val" id="resVib">0.00</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- ===================================================================
+           CENTER COLUMN: Flight Telemetry Charts & Event Timeline
+           =================================================================== -->
+      <div class="cockpit-column">
+        <section class="card" style="flex: 1;">
+          <div class="card-header">
+            <span>Multi-Channel Flight Telemetry</span>
+            <span style="color: var(--accent-sky); font-family: var(--font-mono); font-size: 0.70rem;">⚡ Synchronized 1 Hz</span>
+          </div>
+          <div class="card-body charts-container">
+            
+            <!-- Thermal & Power Chart -->
+            <div class="chart-wrapper">
+              <div class="chart-label">
+                <span>Thermal & Power Dynamics (CHT, Nominal CHT, EGT, RPM)</span>
+                <span id="chartThermalBadge" class="badge-tag tag-ok">Live Stream</span>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="chartThermal"></canvas>
+              </div>
+            </div>
+
+            <!-- Health & Anomaly Chart -->
+            <div class="chart-wrapper">
+              <div class="chart-label">
+                <span>Composite Health Index & AI Anomaly Score Tracking</span>
+                <span id="chartHealthBadge" class="badge-tag tag-ok">Nominal Band</span>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="chartHealthAnomaly"></canvas>
+              </div>
+            </div>
+
+            <!-- Event Timeline / Log -->
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted);">EVENT TIMELINE & TELEMETRY LOG</span>
+                <div class="timeline-filters">
+                  <button class="btn-filter active" data-filter="all">All</button>
+                  <button class="btn-filter" data-filter="FAULT">Faults</button>
+                  <button class="btn-filter" data-filter="WARN">Warnings</button>
+                  <button class="btn-filter" data-filter="INFO">Info</button>
+                </div>
+              </div>
+              <div class="timeline-log" id="timelineLog">
+                <div class="log-entry"><span class="log-time">T+00:00</span> <span class="log-badge INFO">INFO</span> Digital Twin physics engine initialized.</div>
+                <div class="log-entry"><span class="log-time">T+00:00</span> <span class="log-badge INFO">INFO</span> Telemetry Data Quality Guard active.</div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- ===================================================================
+           RIGHT COLUMN: AI Diagnostics, Big RUL Countdown, Adaptive Advisory & SHAP
+           =================================================================== -->
+      <div class="cockpit-column">
+        <section class="card" style="flex: 1;">
+          <div class="card-header">
+            <span>AI Diagnostics & Pilot Advisory</span>
+            <span class="badge-tag tag-ok">XGBoost + SHAP</span>
+          </div>
+          <div class="card-body">
+            
+            <!-- Emergency Level Banner -->
+            <div class="emergency-banner NOMINAL" id="emergencyBanner">
+              <div class="em-title" id="emBannerTitle">ENGINE STATE: NOMINAL</div>
+              <div class="em-conf" id="emBannerConf">100% Conf</div>
+            </div>
+
+            <!-- Squawk 7700 Indicator (Blinking Alert) -->
+            <div class="squawk-indicator" id="squawkIndicator">
+              <div class="sq-code">7700</div>
+              <div class="sq-text">🚨 EMERGENCY TRANSPONDER — SQUAWK 7700 ACTIVE</div>
+            </div>
+
+            <!-- High-Impact Digital RUL Box -->
+            <div class="rul-digital-box">
+              <div class="rul-digital-title">Estimated Remaining Useful Life (RUL)</div>
+              <div class="rul-digital-value" id="valDigitalRUL">N/A (NOMINAL)</div>
+              <div class="rul-subtext" id="rulSubtext">No degradation active. Safe flight window unconstrained.</div>
+            </div>
+
+            <!-- 3 Cockpit Recommendation Cards -->
+            <div class="recom-cards-row">
+              <div class="recom-card">
+                <div class="recom-icon">🛬</div>
+                <div class="recom-label">Altitude</div>
+                <div class="recom-val" id="recAltitude">Maintain</div>
+              </div>
+              <div class="recom-card">
+                <div class="recom-icon">⚡</div>
+                <div class="recom-label">Throttle</div>
+                <div class="recom-val" id="recThrottle">Nominal</div>
+              </div>
+              <div class="recom-card">
+                <div class="recom-icon">🚨</div>
+                <div class="recom-label">Diversion</div>
+                <div class="recom-val" id="recDivert">No Action</div>
+              </div>
+            </div>
+
+            <!-- Pilot Action Checklist -->
+            <div class="checklist-box">
+              <div class="checklist-title">PILOT ACTION CHECKLIST</div>
+              <div class="checklist-items" id="checklistItems">
+                <div class="checklist-item">✓ All engine systems operating within FAA/Lycoming certified limits.</div>
+                <div class="checklist-item">✓ Cruise parameters nominal. No pilot intervention required.</div>
+              </div>
+            </div>
+
+            <!-- SHAP Explainability Panel (Collapsible / Auto-Expands) -->
+            <div class="shap-panel" id="shapPanel">
+              <div class="shap-header">
+                <span>🔍 WHY DID AI PREDICT THIS? (SHAP)</span>
+                <button class="btn-shap-modal" id="btnOpenGlobalShap">Global Importance</button>
+              </div>
+
+              <div id="shapBarsContainer">
+                <div class="shap-quote" id="shapQuoteText">
+                  "Engine operating inside nominal thermodynamic boundary. Zero anomaly attribution."
+                </div>
+              </div>
+            </div>
+
+            <!-- Auxiliary Telemetry Grid -->
+            <div class="aux-grid">
+              <div class="aux-tile">
+                <div class="aux-lbl">EGT</div>
+                <div class="aux-v" id="valEGT">680 °C</div>
+              </div>
+              <div class="aux-tile">
+                <div class="aux-lbl">Oil Press</div>
+                <div class="aux-v" id="valOilPress">68.5 psi</div>
+              </div>
+              <div class="aux-tile">
+                <div class="aux-lbl">Oil Temp</div>
+                <div class="aux-v" id="valOilTemp">82.0 °C</div>
+              </div>
+              <div class="aux-tile">
+                <div class="aux-lbl">Fuel Flow</div>
+                <div class="aux-v" id="valFuelFlow">5.8 GPH</div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- =======================================================================
+         6. MODALS
+         ======================================================================= -->
+
+    <!-- Modal 1: Pre-Flight Go/No-Go Reliability Advisor Modal -->
+    <div class="modal-overlay" id="preflightModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🛫 Pre-Flight Mission Reliability & Go/No-Go Advisor</h2>
+          <button class="btn-close-modal" id="btnClosePreflight">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Mission Profile:</label>
+              <select id="pfMissionProfile" class="gcs-select">
+                <option value="endurance">Endurance (Long Range Cruise)</option>
+                <option value="high_altitude">High Altitude (6,000m Ceiling)</option>
+                <option value="hot_weather">Hot Weather (ISA + 20°C Desert)</option>
+                <option value="rapid_throttle">Rapid Throttle (Combat Maneuvers)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Planned Duration (Minutes):</label>
+              <input type="number" id="pfDuration" class="gcs-select" value="120" min="30" max="360">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Ambient Sea-Level Temp (°C):</label>
+              <input type="number" id="pfAmbientTemp" class="gcs-select" value="35">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Initial Cylinder Health (%):</label>
+              <input type="range" id="pfCylHealth" min="50" max="100" value="95" class="gcs-slider">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div>
+              <label style="font-size: 0.70rem; color: var(--text-muted); display: block;">Lubrication (%):</label>
+              <input type="range" id="pfLubHealth" min="50" max="100" value="92" class="gcs-slider">
+            </div>
+            <div>
+              <label style="font-size: 0.70rem; color: var(--text-muted); display: block;">Cooling (%):</label>
+              <input type="range" id="pfCoolHealth" min="50" max="100" value="88" class="gcs-slider">
+            </div>
+            <div>
+              <label style="font-size: 0.70rem; color: var(--text-muted); display: block;">Vibration (%):</label>
+              <input type="range" id="pfVibHealth" min="50" max="100" value="97" class="gcs-slider">
+            </div>
+          </div>
+
+          <button id="btnRunPreflightCheck" class="btn-gcs btn-primary" style="padding: 10px; font-size: 0.85rem; width: 100%;">
+            ⚡ RUN 50 MONTE CARLO DIGITAL TWIN SIMULATIONS
+          </button>
+
+          <!-- Pre-Flight Results Area -->
+          <div id="pfResultsArea" style="display: none; flex-direction: column; gap: 8px;">
+            <div id="pfStatusBadge" class="preflight-badge-res go">🟢 MISSION GO (100% SUCCESS)</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
+              <div class="metric-tile">
+                <div class="metric-label">Min Predicted RUL</div>
+                <div class="metric-value" id="pfMinRul">4,800 s</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Peak CHT (°C)</div>
+                <div class="metric-value" id="pfPeakCHT">178.4 °C</div>
+              </div>
+              <div class="metric-tile">
+                <div class="metric-label">Bottleneck</div>
+                <div class="metric-value" id="pfBottleneck" style="font-size: 0.85rem; color: var(--accent-amber);">Cooling</div>
+              </div>
+            </div>
+
+            <div class="checklist-box">
+              <div class="checklist-title">ADVISOR RECOMMENDATIONS:</div>
+              <div id="pfRecommendationsList" class="checklist-items"></div>
+            </div>
+
+            <button id="btnExportPfReport" class="btn-gcs" style="width: 100%;">📥 EXPORT JSON REPORT</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Global SHAP Feature Importance Modal -->
+    <div class="modal-overlay" id="shapModal">
+      <div class="modal-content" style="max-width: 750px;">
+        <div class="modal-header">
+          <h2>🔍 Global TreeSHAP Feature Attribution Analysis</h2>
+          <button class="btn-close-modal" id="btnCloseShap">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 0.72rem; color: var(--text-muted);">
+            Ranked Shapley importance values across all 70 engineered physical features computed across the validation suite:
+          </p>
+          <div style="height: 320px; position: relative;">
+            <canvas id="chartGlobalShap"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- =======================================================================
+         7. FOOTER
+         ======================================================================= -->
+    <footer class="gcs-footer">
+      <div>DRDO MALE UAV Propulsion Digital Twin • Validated on Lycoming IO-360 Physics & CMU AirLab ALFA Benchmark</div>
+      <div>FastAPI Engine Server: <span id="footerServerStatus" style="color: var(--accent-green); font-family: var(--font-mono);">ONLINE (127.0.0.1:8000)</span></div>
+    </footer>
+
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

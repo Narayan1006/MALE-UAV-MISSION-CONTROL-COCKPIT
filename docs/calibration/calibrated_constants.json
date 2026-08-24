@@ -1,0 +1,30 @@
+{
+  "dataset_source": {
+    "agency": "National Transportation Safety Board (NTSB)",
+    "docket_id": "ERA21LA099",
+    "docket_url": "https://data.ntsb.gov/Docket?ProjectID=102515",
+    "aircraft": "Diamond DA40-180 (Lycoming IO-360-M1A)",
+    "file_name": "log_210103_103720_KBVY-Rel.csv",
+    "total_records": 2190,
+    "sampling_rate": "1 Hz (per-second avionics datalog)"
+  },
+  "fitted_constants": {
+    "idle_rpm": 809.1,
+    "max_rpm": 2641.3,
+    "cht_rise_max": 186.8,
+    "tau_cht": 42.0,
+    "egt_base": 508.35,
+    "egt_gain": 1.3317,
+    "oil_rise_max": 78.7,
+    "tau_oil": 80.0,
+    "pressure_base": 52.7,
+    "pressure_slope": 23.5,
+    "fuel_flow_max_gs": 13.718
+  },
+  "regulatory_comparison": {
+    "max_rpm_certified_tcds_1e10": 2700.0,
+    "cht_redline_certified_c": 260.0,
+    "oil_press_idle_min_psi": 25.0,
+    "oil_press_normal_max_psi": 95.0
+  }
+}
