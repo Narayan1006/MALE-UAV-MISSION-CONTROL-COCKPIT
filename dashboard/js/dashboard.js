@@ -176,7 +176,7 @@ function initCharts() {
 
 function pushChartPoint(timestamp, sCht, nCht, egt, rpm, health, anom) {
   const label = formatTime(timestamp);
-  const maxPoints = 50;
+  const maxPoints = 30;
 
   if (chartThermal.data.labels.length > maxPoints) {
     chartThermal.data.labels.shift();
@@ -187,7 +187,7 @@ function pushChartPoint(timestamp, sCht, nCht, egt, rpm, health, anom) {
   chartThermal.data.datasets[1].data.push(nCht);
   chartThermal.data.datasets[2].data.push(egt);
   chartThermal.data.datasets[3].data.push(rpm);
-  chartThermal.update();
+  chartThermal.update('none');
 
   if (chartHealthAnomaly.data.labels.length > maxPoints) {
     chartHealthAnomaly.data.labels.shift();
@@ -196,31 +196,33 @@ function pushChartPoint(timestamp, sCht, nCht, egt, rpm, health, anom) {
   chartHealthAnomaly.data.labels.push(label);
   chartHealthAnomaly.data.datasets[0].data.push(health);
   chartHealthAnomaly.data.datasets[1].data.push(anom);
-  chartHealthAnomaly.update();
+  chartHealthAnomaly.update('none');
 }
 
 function clearChartData() {
   if (chartThermal) {
     chartThermal.data.labels = [];
     chartThermal.data.datasets.forEach(ds => ds.data = []);
-    chartThermal.update();
+    chartThermal.update('none');
   }
   if (chartHealthAnomaly) {
     chartHealthAnomaly.data.labels = [];
     chartHealthAnomaly.data.datasets.forEach(ds => ds.data = []);
-    chartHealthAnomaly.update();
+    chartHealthAnomaly.update('none');
   }
 }
 
 // ==============================================================================
 // 3. LIVE INTERACTIVE DIGITAL TWIN STEPPING
 // ==============================================================================
+let isStepping = false;
+
 function startLiveTwin() {
   if (isRunning) return;
   isRunning = true;
   document.getElementById('btnLiveStart').innerText = "▶ Running";
   document.getElementById('btnLiveStart').style.background = "var(--accent-green)";
-  loopInterval = setInterval(stepLiveTwin, 300); // 3.3 Hz render cycle
+  loopInterval = setInterval(stepLiveTwin, 1000); // 1 Hz standard telemetry sync
 }
 
 function pauseEngine() {
@@ -228,9 +230,29 @@ function pauseEngine() {
   clearInterval(loopInterval);
   document.getElementById('btnLiveStart').innerText = "▶ Start Twin";
   document.getElementById('btnLiveStart').style.background = "var(--accent-blue)";
-  document.getElementById('btnReplayPlay').innerText = "▶ Start Replay";
-  document.getElementById('btnReplayPlay').style.background = "var(--accent-blue)";
 }
+
+async function stepLiveTwin() {
+  if (isStepping) return;
+  isStepping = true;
+  try {
+    const res = await fetch(`${API_BASE}/simulator/live/step`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(liveParams)
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderCockpitFrame(data);
+  } catch (err) {
+    // Graceful error handling
+  } finally {
+    isStepping = false;
+  }
+}
+}
+
 
 async function resetLiveTwin() {
   pauseEngine();
