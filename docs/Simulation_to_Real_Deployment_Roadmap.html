@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DRDO SIH 26054 Deployment Roadmap</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 18mm 15mm 18mm 15mm;
+  }
+  @media print {
+    .page-break {
+      page-break-before: always;
+    }
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #0f172a;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    background: #ffffff;
+  }
+  .main-title {
+    font-size: 20pt;
+    color: #0284c7;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .section-heading {
+    font-size: 16pt;
+    color: #0f172a;
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 4px;
+    margin-top: 15px;
+    margin-bottom: 12px;
+  }
+  .sub-heading {
+    font-size: 12.5pt;
+    color: #0369a1;
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+  .sub-sub-heading {
+    font-size: 11pt;
+    color: #334155;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .body-text {
+    margin-top: 4px;
+    margin-bottom: 6px;
+    color: #1e293b;
+  }
+  .bullet-item {
+    margin-bottom: 4px;
+    color: #1e293b;
+  }
+  .callout-box {
+    background: #f0f9ff;
+    border-left: 4px solid #0284c7;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-size: 10pt;
+    color: #0369a1;
+  }
+  .code-block {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 10px 0;
+  }
+  .inline-code {
+    background: #f1f5f9;
+    color: #0284c7;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 9.5pt;
+  }
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 9.5pt;
+  }
+  .doc-table th {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 7px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .doc-table td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 6px 10px;
+    color: #1e293b;
+  }
+  .doc-table tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+  .divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 15px 0;
+  }
+  strong {
+    color: #0f172a;
+  }
+</style>
+</head>
+<body>
+<h1 class="main-title">From Simulation to Real Deployment — A Practical Roadmap for MALE UAV Engine Digital Twin</h1>
+<p class="body-text"><strong>DRDO SIH 26054 | Mission Reliability Enhancement of MALE UAV Engine</strong></p>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">1. Title Page</h2>
+<h1 class="main-title">From Simulation to Real Deployment — A Practical Roadmap for MALE UAV Engine Digital Twin</h1>
+<h3 class="sub-heading">DRDO SIH 26054 | Mission Reliability Enhancement of MALE UAV Engine</h3>
+<div class="callout-box">**Confidential | Team DRDO SIH 26054 | Smart India Hackathon 2026**</div>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">2. Why We Built a Simulator First</h2>
+<p class="body-text">When evaluating a software solution for military unmanned aerial vehicles (UAVs), judges and aviation domain experts naturally ask: <em>"Why did you build a simulator instead of testing on a real engine?"</em> </p>
+<p class="body-text">Building a physics-grounded Digital Twin simulator was not a shortcut or a compromise; it was the <strong>only scientifically sound and engineering-feasible starting point</strong>. The development was dictated by four real-world operational constraints:</p>
+<h3 class="sub-heading">Constraint 1: Real Military Data is Classified (Defence Secret)</h3>
+<li class="bullet-item">Telemetry from operational Medium-Altitude Long-Endurance (MALE) UAVs (such as DRDO Tapas-BH-201 or Rustom-II) is classified under national defense secrecy protocols.</li>
+<li class="bullet-item">DRDO and the Indian Armed Forces cannot release live operational flight logs, telemetry streams, or engine failure recordings to student hackathon participants.</li>
+<li class="bullet-item">In machine learning, training supervised models requires extensive labelled failure examples (e.g., severe CHT surge, oil pump seal degradation, misfire). Because real catastrophic failures in military aviation are extremely rare and unreleased, a purely data-driven approach on raw flight logs is mathematically impossible.</li>
+<li class="bullet-item"><strong>SOLUTION:</strong> We constructed a first-principles, physics-informed aero-engine simulator. It models thermal balance, hydrodynamic lubrication, and ISA atmospheric density from sea level to 25,000 ft, generating unlimited, perfectly labelled synthetic flight telemetry. Every equation traces directly to FAA-certified engineering baselines (<strong>FAA Type Certificate Data Sheet TCDS 1E10</strong> for Lycoming IO-360-M1A) and verified <strong>NTSB crash investigation dockets (ERA21LA099)</strong>.</li>
+<h3 class="sub-heading">Constraint 2: No Access to Physical Engine or Test Cell Hardware</h3>
+<li class="bullet-item">A physical Lycoming IO-360 / Rotax 914 aero-engine costs approximately <strong>₹25 Lakh to ₹30 Lakh</strong>, is ITAR-controlled, and requires specialized import licensing.</li>
+<li class="bullet-item">Engine test cell infrastructure requires dedicated facility access (e.g., DRDO ADE / ADA / NAL laboratories) equipped with dynamometers, fuel flow meters, high-temperature exhaust extraction, and automated halon fire suppression systems.</li>
+<li class="bullet-item">Running a 180 HP aviation piston engine indoors without certified test cell infrastructure is an extreme safety hazard.</li>
+<li class="bullet-item"><strong>SOLUTION:</strong> We developed a 100% software-defined Minimum Viable Product (MVP) that mathematically proves the diagnostic and prognostic concepts. The code architecture is completely hardware-agnostic: the exact same data quality guard, ML pipeline, explainability engine, and GCS cockpit dashboard will run seamlessly when physical sensors are connected.</li>
+<h3 class="sub-heading">Constraint 3: RF Telemetry Hardware Costs Exceed Student Budgets</h3>
+<li class="bullet-item">A production-grade long-range RF telemetry link (e.g., dual RFD900x 900MHz transceivers with Yagi directional antennas) costs ~₹30,000.</li>
+<li class="bullet-item">An airworthiness-compliant Pixhawk 6C flight computer costs ~₹25,000.</li>
+<li class="bullet-item">Onboard companion computer (Raspberry Pi 4 / NVIDIA Jetson), industrial thermocouple amplifiers (MAX31855), MEMS ADXL345 accelerometers, and optical tachometers cost another ~₹15,000–₹20,000.</li>
+<li class="bullet-item">The total hardware Bill of Materials (BOM) exceeds <strong>₹70,000–₹1,000,000</strong>, which is beyond student hackathon financial boundaries.</li>
+<li class="bullet-item"><strong>SOLUTION:</strong> We simulated the RF telemetry link in software, including configurable stochastic packet loss (0–15%), packet dropouts, and sensor drift.</li>
+<h3 class="sub-heading">Constraint 4: Hackathon Time Limit (36–48 Hours)</h3>
+<li class="bullet-item">Integrating physical avionics hardware requires weeks of physical assembly, custom PCB fabrication, wire harness crimping, ADC calibration, and sensor noise profiling.</li>
+<li class="bullet-item">Conducting real-world RF telemetry range testing requires open airfield access, Ground Control Station setup, and strict DGCA / MoD airspace clearances (taking 4–8 weeks for approval).</li>
+<li class="bullet-item"><strong>SOLUTION:</strong> We built a 100% production-ready software stack within 48 hours. The hardware communication layer is designed as a modular <strong>Plug-and-Play Input Adapter</strong>.</li>
+<div class="callout-box"><strong>💡 What Evaluators Want to See</strong></div>
+<div class="callout-box">1. **Real-World Awareness:** You thoroughly understand real military aerospace constraints and regulatory barriers.</div>
+<div class="callout-box">2. **Physical Grounding:** Your simulation is built on thermodynamic and atmospheric laws, not random noise generators.</div>
+<div class="callout-box">3. **Clear Migration Path:** You possess a concrete, phased engineering roadmap to transition from simulation to field deployment.</div>
+<div class="callout-box">4. **Hardware Agnosticism:** Your software architecture decouples data ingestion from AI analytics, allowing seamless sensor integration.</div>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">3. Current Architecture (Simulation Phase)</h2>
+<p class="body-text">In the current hackathon MVP, the system operates as a closed-loop simulation environment.</p>
+<h3 class="sub-heading">Data Flow Diagram (Simulation Phase)</h3>
+</code></pre>
+<p class="body-text">┌─────────────────────────────────────────────────────────────────────────────────┐</p>
+<p class="body-text">│                          CURRENT SIMULATION ARCHITECTURE                        │</p>
+<p class="body-text">│                                                                                 │</p>
+<p class="body-text">│  ┌──────────────────────┐      ┌──────────────────────┐                         │</p>
+<p class="body-text">│  │   PHYSICS SIMULATOR  │      │  DATA QUALITY GUARD  │                         │</p>
+<p class="body-text">│  │ (engine_simulator.py)│─────►│(data_quality_guard.py)│                         │</p>
+<p class="body-text">│  │ • Lycoming IO-360 ODE│      │ • 3.5σ Z-score Filter│                         │</p>
+<p class="body-text">│  │ • ISA Atmosphere Model      │ • Dropout Imputation │                         │</p>
+<p class="body-text">│  │ • 6 Fault Schedules  │      │ • Sensor Drift Track │                         │</p>
+<p class="body-text">│  └──────────────────────┘      └──────────┬───────────┘                         │</p>
+<p class="body-text">│                                           │ Clean Telemetry                     │</p>
+<p class="body-text">│                                           ▼                                     │</p>
+<p class="body-text">│  ┌──────────────────────┐      ┌──────────────────────┐                         │</p>
+<p class="body-text">│  │ GCS COCKPIT DASHBOARD│      │  HYBRID ML PIPELINE  │                         │</p>
+<p class="body-text">│  │   (dashboard/ UI)    │◄─────│    (ml/models/)       │                         │</p>
+<p class="body-text">│  │ • Live 1Hz Telemetry │      │ • Isolation Forest   │                         │</p>
+<p class="body-text">│  │ • Digital RUL Timer  │      │ • XGBoost Classifier │                         │</p>
+<p class="body-text">│  │ • TreeSHAP XAI Bars  │      │ • XGBoost Regressor  │                         │</p>
+<p class="body-text">│  │ • Squawk 7700 Alert  │      │ • Adaptive Planner   │                         │</p>
+<p class="body-text">│  └──────────────────────┘      └──────────────────────┘                         │</p>
+<p class="body-text">└─────────────────────────────────────────────────────────────────────────────────┘</p>
+</code></pre>
+<h3 class="sub-heading">Key System Characteristics</h3>
+<li class="bullet-item"><strong>Closed Loop Execution:</strong> The simulator generates 1 Hz physics telemetry, passes it through the Data Quality Guard layer, feeds it into the ML models, and displays live analytics on the Ground Control Station (GCS) cockpit dashboard.</li>
+<li class="bullet-item"><strong>No External Dependencies:</strong> The system executes completely standalone without requiring physical hardware or active internet connection.</li>
+<li class="bullet-item"><strong>Fast Scenario Iteration:</strong> Allows operators to test 100+ failure scenarios (e.g., mild cooling degradation vs severe misfire at 15,000 ft) in minutes.</li>
+<li class="bullet-item"><strong>Deterministic Ground Truth:</strong> Exact fault onset times, fault severity (0.0 to 1.0), and true Remaining Useful Life (RUL) are known precisely for benchmarking.</li>
+<h3 class="sub-heading">Operational Capabilities Proven (✅)</h3>
+<li class="bullet-item"><strong>Thermodynamic Fidelity:</strong> Equations match FAA certified cruise envelopes (CHT safe: 135–185°C, Oil Pressure: 55–80 psi, EGT: 350–650°C).</li>
+<li class="bullet-item"><strong>Prognostic Accuracy:</strong> High performance on held-out test missions (<strong>93.68% Weighted F1-Score</strong> for 7-class fault classification, <strong>63.62s MAE</strong> for RUL estimation).</li>
+<li class="bullet-item"><strong>Data Robustness:</strong> Handled 15% random packet loss and sensor EMI spikes with zero false emergency triggers.</li>
+<li class="bullet-item"><strong>Real-Time Edge Budget:</strong> Total pipeline inference latency is <strong>13.9 ms</strong> ($>70\times$ faster than the 1 Hz telemetry loop requirement) with a light <strong>408 MB RAM</strong> footprint.</li>
+<h3 class="sub-heading">Operational Gaps Not Tested in Simulation (❌)</h3>
+<li class="bullet-item">Physical thermocouple electromagnetic interference (EMI) and ADC quantization noise.</li>
+<li class="bullet-item">RF link fading, multipath interference, and antenna nulls during UAV banking turns.</li>
+<li class="bullet-item">Real-time OS (RTOS) thread scheduling jitter on embedded flight hardware.</li>
+<li class="bullet-item">Operator cognitive load under live emergency flight stress.</li>
+<li class="bullet-item">Civil and military regulatory certification (DGCA / DO-178C / DO-330).</li>
+<div class="callout-box">⚠️ **Key Takeaway:** These operational gaps are explicitly addressed in the **Real Deployment Architecture** detailed on Page 4.</div>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">4. Real Deployment Architecture</h2>
+<p class="body-text">Transitioning from simulation to operational flight requires inserting physical sensors, flight controllers, an onboard edge computer, and long-range RF telemetry links. The core ML intelligence and GCS Dashboard code remain 100% untouched.</p>
+<h3 class="sub-heading">System Flow Diagram (Real Airborne & Ground System)</h3>
+</code></pre>
+<p class="body-text">┌─────────────────────────────────────────────────────────────────────────────────┐</p>
+<p class="body-text">│                             UAV AIRBORNE SYSTEM                                 │</p>
+<p class="body-text">│                                                                                 │</p>
+<p class="body-text">│  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐    ┌──────────────┐ │</p>
+<p class="body-text">│  │ PHYSICAL     │     │ PIXHAWK 6C   │     │ RASPBERRY PI4│    │ RFD900X RADIO│ │</p>
+<p class="body-text">│  │ SENSORS      │────►│ FLIGHT       │────►│ ONBOARD EDGE │───►│ 900MHz TRANS-│ │</p>
+<p class="body-text">│  │ (CHT,EGT,RPM)│     │ COMPUTER     │     │ ML (7.8MB)   │    │ CEIVER (40km)│ │</p>
+<p class="body-text">│  └──────────────┘     └──────────────┘     └──────────────┘    └──────┬───────┘ │</p>
+<p class="body-text">└───────────────────────────────────────────────────────────────────────┼─────────┘</p>
+<p class="body-text">                                                                        │</p>
+<p class="body-text">                                       RF Datalink (MAVLink Telemetry)  │</p>
+<p class="body-text">                                                                        ▼</p>
+<p class="body-text">┌─────────────────────────────────────────────────────────────────────────────────┐</p>
+<p class="body-text">│                        GROUND CONTROL STATION (GCS)                             │</p>
+<p class="body-text">│                                                                                 │</p>
+<p class="body-text">│  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐    ┌──────────────┐ │</p>
+<p class="body-text">│  │ GROUND RF    │     │ MAVLINK      │     │ HEAVY ML +   │    │ GCS MISSION  │ │</p>
+<p class="body-text">│  │ RECEIVER     │────►│ STREAM       │────►│ TREESHAP XAI │───►│ COCKPIT HUD  │ │</p>
+<p class="body-text">│  │ (RFD900x)    │     │ PARSER       │     │ INFERENCE    │    │ (index.html) │ │</p>
+<p class="body-text">│  └──────────────┘     └──────────────┘     └──────────────┘    └──────────────┘ │</p>
+<p class="body-text">└─────────────────────────────────────────────────────────────────────────────────┘</p>
+</code></pre>
+<div class="callout-box">**🟢 ARCHITECTURAL PRINCIPLE: THE EXACT SAME PYTHON CODE RUNS ON BOTH SYSTEMS — ONLY THE DATA INPUT SOURCE CHANGES FROM `CSV/SIMULATOR` TO `MAVLINK STREAM`.**</div>
+<h3 class="sub-heading">Hardware Bill of Materials (BOM) & Cost Analysis</h3>
+<table class='doc-table'>
+<tr><th>Component Category</th><th>Hardware Specification</th><th>Unit Cost (₹)</th><th>System Purpose & Placement</th></tr>
+<tr><td>**Engine Sensors**</td><td>4x K-Type Thermocouple Probes + MAX31855</td><td>₹2,000</td><td>Cylinder Head Temp (CHT) & EGT per cylinder</td></tr>
+<tr><td></td><td>Piezoresistive Pressure Transducer (0-150 psi)</td><td>₹2,000</td><td>Engine Oil Line Pressure</td></tr>
+<tr><td></td><td>Industrial RTD PT100 (-50 to +200°C)</td><td>₹800</td><td>Sump Oil Temperature</td></tr>
+<tr><td></td><td>MEMS ADXL345 3-Axis Accelerometer (±16g)</td><td>₹300</td><td>Engine Crankcase Vibration</td></tr>
+<tr><td></td><td>Optical Tachometer / Hall Effect Sensor</td><td>₹1,500</td><td>Engine RPM Measurement</td></tr>
+<tr><td></td><td>Turbine Fuel Flow Sensor (0.5–30 GPH)</td><td>₹3,000</td><td>Fuel Consumption Rate</td></tr>
+<tr><td>**Airborne Processing**</td><td>Pixhawk 6C Flight Computer (ARM Cortex-M7)</td><td>₹25,000</td><td>Sensor DAQ, MAVLink telemetry encoding</td></tr>
+<tr><td></td><td>Raspberry Pi 4 (8GB RAM) / Jetson Orin Nano</td><td>₹8,000</td><td>Onboard Edge ML Inference & Safety Gate</td></tr>
+<tr><td>**Datalink & Power**</td><td>RFD900x 900MHz Long-Range Telemetry Pair</td><td>₹15,000</td><td>40 km Range RF Datalink</td></tr>
+<tr><td></td><td>5V/3A Power Distribution BEC & Harness</td><td>₹1,000</td><td>Isolated Power Regulation</td></tr>
+<tr><td>**AIRBORNE TOTAL**</td><td></td><td>**₹58,600**</td><td>**Complete Airborne Package**</td></tr>
+<tr><td>**Ground Station**</td><td>Ruggedized Operator Laptop (Intel i7 / 16GB)</td><td>₹40,000</td><td>Ground Control Station & Heavy Analytics</td></tr>
+<tr><td></td><td>Ground Telemetry Receiver (RFD900x USB)</td><td>₹15,000</td><td>Receiving Telemetry Stream</td></tr>
+<tr><td></td><td>High-Gain 900MHz Yagi Directional Antenna</td><td>₹2,000</td><td>Extended Line-of-Sight Range (up to 50 km)</td></tr>
+<tr><td></td><td>4G/5G Cellular Datalink Modem</td><td>₹3,000</td><td>Redundant Backup Datalink</td></tr>
+<tr><td>**GROUND TOTAL**</td><td></td><td>**₹60,000**</td><td>**Complete Ground Station Package**</td></tr>
+<tr><td>**GRAND TOTAL**</td><td></td><td>**₹1,18,600**</td><td>**Complete Production Hardware BOM**</td></tr>
+</table>
+<div class="callout-box">📌 **Economic Reality Check:** Total deployment hardware cost is **₹1.18 Lakh**, which represents **less than 0.004%** of a ₹25 Crore MALE UAV aircraft cost. Protecting a multi-crore asset with ₹1.18 Lakh hardware yields an extraordinary ROI.</div>
+<h3 class="sub-heading">Operational Data Flow (1-Second Cycle)</h3>
+<p class="body-text">1. <strong>Sensor Acquisition:</strong> Physical sensors measure CHT, EGT, RPM, Oil Pressure, Oil Temp, and Vibration at 10 Hz.</p>
+<p class="body-text">2. <strong>Flight Computer Aggregation:</strong> Pixhawk 6C reads sensor values via SPI/I2C/Analog inputs, packages telemetry into custom MAVLink data packets, and routes them via UART to the Raspberry Pi 4.</p>
+<p class="body-text">3. <strong>Onboard Edge Screening:</strong> Raspberry Pi 4 runs lightweight Isolation Forest anomaly detection (<5 ms). If severe anomaly is detected onboard, an immediate emergency flag is inserted into the datalink stream.</p>
+<p class="body-text">4. <strong>RF Datalink Transmission:</strong> RFD900x transceivers transmit MAVLink packets over 900 MHz at 57,600 baud rate to the Ground Control Station.</p>
+<p class="body-text">5. <strong>GCS Processing & Explainability:</strong> GCS ground computer receives packets via USB, parses MAVLink telemetry, runs XGBoost Fault Classification, RUL Regression, and TreeSHAP feature attributions.</p>
+<p class="body-text">6. <strong>Cockpit Display & Pilot Alerting:</strong> Dashboard updates at 1 Hz, refreshing health heatmaps, countdown timers, and pilot checklists.</p>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">5. Gap Analysis (Simulation vs Real Deployment)</h2>
+<p class="body-text">To ensure complete technical defensibility, the table below maps every software and hardware component, evaluating its current status, real-world deployment gap, and engineering priority.</p>
+<table class='doc-table'>
+<tr><th>System Module</th><th>Simulation State</th><th>Real Deployment Requirement</th><th>Gap Status</th><th>Priority Level</th></tr>
+<tr><td>**Physics Engine**</td><td>Synthetic ODE Equations</td><td>Physical Engine Sensors (Lycoming IO-360)</td><td>Inputs replaced by physical sensors</td><td>**P1 (Critical)**</td></tr>
+<tr><td>**Data Quality Guard**</td><td>Synthetic $3.5\sigma$ Noise</td><td>Real EMI, Vibration & ADC Noise</td><td>**Same code works as-is**</td><td>**P1 (Critical)**</td></tr>
+<tr><td>**Isolation Forest**</td><td>Trained on Synthetic Data</td><td>Retrain on real flight telemetry</td><td>Architecture ready; needs fine-tuning</td><td>**P2 (High)**</td></tr>
+<tr><td>**XGBoost Classifier**</td><td>Trained on 7 Fault Types</td><td>Transfer Learning on real failure logs</td><td>Architecture ready; model weights update</td><td>**P2 (High)**</td></tr>
+<tr><td>**XGBoost RUL Regressor**</td><td>Trained on Sim Wear Curves</td><td>Calibrate against physical engine overhaul logs</td><td>Architecture ready</td><td>**P2 (High)**</td></tr>
+<tr><td>**TreeSHAP XAI Core**</td><td>Fully Functional (<25ms)</td><td>Same Feature Attribution Engine</td><td>**Same code works as-is**</td><td>**P3 (Medium)**</td></tr>
+<tr><td>**Adaptive Advisory**</td><td>Convective cooling & de-rating</td><td>Same Altitude & Throttle Planner</td><td>**Same code works as-is**</td><td>**P3 (Medium)**</td></tr>
+<tr><td>**GCS Cockpit UI**</td><td>Web HUD (Chart.js + CSS)</td><td>Same HUD connected to MAVLink Stream</td><td>**Same code works as-is**</td><td>**P3 (Medium)**</td></tr>
+<tr><td>**MAVLink Datalink**</td><td>Simulated via HTTP</td><td>Implement `pymavlink` parser</td><td>Requires Python MAVLink listener</td><td>**P1 (Critical)**</td></tr>
+<tr><td>**RF Datalink Handler**</td><td>Localhost Network</td><td>RFD900x Driver & Serial Port Buffer</td><td>Requires Hardware Baudrate Setup</td><td>**P1 (Critical)**</td></tr>
+<tr><td>**Edge Deployment**</td><td>Simulated Edge Latency</td><td>Deploy ONNX / C++ on Raspberry Pi 4</td><td>Requires ARM64 wheel compilation</td><td>**P2 (High)**</td></tr>
+<tr><td>**Time-Series DB**</td><td>In-Memory Dataframe</td><td>InfluxDB / TimescaleDB logging</td><td>Requires persistent storage setup</td><td>**P3 (Medium)**</td></tr>
+<tr><td>**Security & Encryption**</td><td>Unencrypted HTTP</td><td>AES-256 MAVLink Frame Signing</td><td>Requires security layer</td><td>**P2 (High)**</td></tr>
+<tr><td>**Airworthiness Cert.**</td><td>Academic Validation</td><td>DO-178C (Software) & DO-330 (Tools)</td><td>Long-term certification roadmap</td><td>**P4 (Future)**</td></tr>
+</table>
+<div class="callout-box">**Priority Key:**</div>
+<div class="callout-box">- 🔴 **P1 (Critical):** Immediate hardware ingestion & datalink drivers required for field testing.</div>
+<div class="callout-box">- 🟡 **P2 (High):** Model transfer learning and edge optimization.</div>
+<div class="callout-box">- 🟢 **P3 (Medium):** Direct code reuse (80% of current codebase).</div>
+<div class="callout-box">- ⚪ **P4 (Future):** Regulatory airworthiness certification.</div>
+<div class="callout-box"><strong>📌 Summary of Gap Analysis</strong></div>
+<div class="callout-box">**Over 80% of our software codebase (Data Quality Guard, TreeSHAP Explainability Engine, Adaptive Mission Replanning Engine, and GCS Cockpit UI) is 100% DEPLOYMENT-READY.** Only the data ingestion adapter needs to switch from reading CSV files to parsing MAVLink streams.</div>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">6. Migration Roadmap (7-Phase Engineering Plan)</h2>
+<p class="body-text">Transitioning the MALE UAV Engine Digital Twin from a hackathon prototype to an operational defense system follows a structured 7-phase roadmap spanning 10–14 weeks for field testing, and 6–12 months for fleet-wide production deployment.</p>
+</code></pre>
+<p class="body-text">┌─────────────────────────────────────────────────────────────────────────────────┐</p>
+<p class="body-text">│                          7-PHASE MIGRATION TIMELINE                             │</p>
+<p class="body-text">│                                                                                 │</p>
+<p class="body-text">│ [Phase 1: Hackathon MVP] ──► (Completed - 48 Hours)                             │</p>
+<p class="body-text">│ [Phase 2: Sensor Integration] ──► (Weeks 1-3 | ₹15,000)                         │</p>
+<p class="body-text">│ [Phase 3: RF Datalink Testing] ──► (Weeks 4-5 | ₹30,000)                        │</p>
+<p class="body-text">│ [Phase 4: Edge Compute Opt.] ──► (Week 6 | ₹8,000)                              │</p>
+<p class="body-text">│ [Phase 5: Real Flight Data Collection] ──► (Weeks 7-10 | ₹50,000)               │</p>
+<p class="body-text">│ [Phase 6: Field Closed-Loop Testing] ──► (Weeks 11-14 | ₹1,00,000)              │</p>
+<p class="body-text">│ [Phase 7: Production & Certification] ──► (Months 6-12 | Fleet Deployment)      │</p>
+<p class="body-text">└─────────────────────────────────────────────────────────────────────────────────┘</p>
+</code></pre>
+<h3 class="sub-heading">Phase 1: Hackathon Software MVP (COMPLETED — 48 Hours)</h3>
+<li class="bullet-item">Built first-principles physics simulator for Lycoming IO-360 aero-engine across 144 missions (239,544 telemetry rows).</li>
+<li class="bullet-item">Trained 3-tier ML pipeline (Isolation Forest + XGBoost Classifier + XGBoost RUL Regressor) achieving <strong>93.68% F1-Score</strong>.</li>
+<li class="bullet-item">Developed real-time TreeSHAP explainability engine (<25ms) and GCS Cockpit HUD.</li>
+<li class="bullet-item"><strong>Cost:</strong> ₹0 | <strong>Timeline:</strong> 48 Hours | <strong>Status:</strong> ✅ COMPLETED</li>
+<h3 class="sub-heading">Phase 2: Physical Sensor Procurement & Calibration (Weeks 1–3)</h3>
+<li class="bullet-item">Procure industrial K-type thermocouples, piezoresistive oil pressure transducers, optical tachometers, and MEMS accelerometers.</li>
+<li class="bullet-item">Wire sensors to Pixhawk 6C analog/I2C ports and calibrate ADC voltage-to-unit conversion curves in laboratory environment.</li>
+<li class="bullet-item">Define custom MAVLink dialect messages (`UNMANNED_ENGINE_TELEMETRY`) for 14-channel transmission.</li>
+<li class="bullet-item"><strong>Cost:</strong> ₹15,000 | <strong>Timeline:</strong> Weeks 1–3</li>
+<h3 class="sub-heading">Phase 3: RF Telemetry Datalink Testing (Weeks 4–5)</h3>
+<li class="bullet-item">Procure and configure dual RFD900x 900MHz transceivers with Yagi directional ground antenna.</li>
+<li class="bullet-item">Establish serial UART datalink at 57,600 baud; measure packet loss, latency, and signal-to-noise ratio (SNR) across increasing line-of-sight distances (1 km $\rightarrow$ 5 km $\rightarrow$ 20 km).</li>
+<li class="bullet-item">Verify Data Quality Guard layer successfully imputes telemetry dropouts under real RF fading.</li>
+<li class="bullet-item"><strong>Cost:</strong> ₹30,000 | <strong>Timeline:</strong> Weeks 4–5</li>
+<h3 class="sub-heading">Phase 4: Onboard Edge Compute Validation (Week 6)</h3>
+<li class="bullet-item">Deploy lightweight Isolation Forest and Data Quality Guard onto onboard Raspberry Pi 4 (8GB) / Jetson Orin Nano.</li>
+<li class="bullet-item">Benchmark inference latency under ARM64 architecture constraints; apply ONNX runtime quantization if necessary to maintain $<10\text{ ms}$ processing time.</li>
+<li class="bullet-item">Verify onboard thermal and power consumption ($<10\text{W}$ power draw).</li>
+<li class="bullet-item"><strong>Cost:</strong> ₹8,000 | <strong>Timeline:</strong> Week 6</li>
+<h3 class="sub-heading">Phase 5: Real Flight Data Collection & Transfer Learning (Weeks 7–10)</h3>
+<li class="bullet-item">Mount sensor suite on test aircraft (e.g., General Aviation General Avia / Experimental UAV testbed).</li>
+<li class="bullet-item">Fly 50+ healthy baseline missions to collect 100,000+ real operational sensor rows under varying atmospheric conditions.</li>
+<li class="bullet-item">Fine-tune ML models using <strong>Transfer Learning</strong> (freezing early tree nodes trained on simulation, fine-tuning output leaves on real sensor distribution).</li>
+<li class="bullet-item"><strong>Cost:</strong> ₹50,000 (Fuel + Aircraft Operating Expenses) | <strong>Timeline:</strong> Weeks 7–10</li>
+<h3 class="sub-heading">Phase 6: Closed-Loop Field Testing & Pilot Usability (Weeks 11–14)</h3>
+<li class="bullet-item">Conduct live flight tests with active fault injection (e.g., partial cooling baffle restriction or synthetic sensor bias).</li>
+<li class="bullet-item">Evaluate Pilot Advisory Engine: verify pilot compliance with convective cooling altitude descent and throttle de-rating recommendations.</li>
+<li class="bullet-item">Measure false alarm rate ($<1\%$), fault detection lead time ($>8\text{ minutes}$ advance warning), and operator workload index (NASA-TLX).</li>
+<li class="bullet-item"><strong>Cost:</strong> ₹1,00,000 | <strong>Timeline:</strong> Weeks 11–14</li>
+<h3 class="sub-heading">Phase 7: Production Fleet Deployment & Airworthiness Certification (Months 6–12)</h3>
+<li class="bullet-item">Formal airworthiness compliance under <strong>DO-178C</strong> (Software Considerations in Airborne Systems) and <strong>DO-330</strong> (Tool Qualification).</li>
+<li class="bullet-item">Implementation of AES-256 frame encryption and MAVLink signature validation to prevent cyber-spoofing.</li>
+<li class="bullet-item">Fleet-wide installation across DRDO MALE UAV units with automated monthly model retraining.</li>
+<li class="bullet-item"><strong>Cost:</strong> Enterprise / Defense Budget | <strong>Timeline:</strong> Months 6–12</li>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">7. Evaluator Talking Points (Q&A Defense Guide)</h2>
+<p class="body-text">When presenting to SIH judges, DRDO scientists, and aviation domain evaluators, use these structured, authoritative answers to defend the transition from simulation to real deployment.</p>
+<h3 class="sub-heading">Question 1: "This is just a simulation. How do we know it will work on a real UAV?"</h3>
+<div class="callout-box">**Answer Structure (5-Step Response):**</div>
+<div class="callout-box">1. **Acknowledge:** "You are completely right, sir. Real military UAV flight logs are classified, and testing on physical aircraft engines requires multi-crore test cell infrastructure."</div>
+<div class="callout-box">2. **Explain Physics Grounding:** "However, our simulation is not random curve fitting. Every thermodynamic and atmospheric equation is calibrated directly from **FAA Type Certificate TCDS 1E10** and **NTSB crash investigation dockets (ERA21LA099)**."</div>
+<div class="callout-box">3. **Show Hardware Architecture:** "We have designed the complete real-world hardware deployment pipeline: physical sensors $\rightarrow$ Pixhawk 6C $\rightarrow$ Raspberry Pi 4 edge computer $\rightarrow$ RFD900x 900MHz datalink $\rightarrow$ Ground Station."</div>
+<div class="callout-box">4. **Highlight Software Modular Agnosticism:** "Our software architecture is completely hardware-agnostic. Today, the Data Quality Guard reads from `simulator.csv`. Tomorrow, it reads from `pymavlink` serial stream. **80% of our codebase is deployed as-is.**"</div>
+<div class="callout-box">5. **Present Timeline & Cost:** "Total hardware deployment cost is ₹1.18 Lakh (0.004% of aircraft cost), and field testing requires 10–14 weeks."</div>
+<h3 class="sub-heading">Question 2: "Your ML model never saw real sensor noise. Won't it fail in real flight?"</h3>
+<div class="callout-box">**Answer:** *"In aerospace engineering, building synthetic physics baselines prior to real hardware availability is standard international practice (e.g., NASA C-MAPSS). Furthermore, our Data Quality Guard layer explicitly injects $3.5\sigma$ statistical Z-score filtering and median smoothing specifically designed for thermocouple EMI spikes and ADC quantization noise. When real data becomes available in Phase 5, we apply **Transfer Learning** to fine-tune our XGBoost models in 48 hours."*</div>
+<h3 class="sub-heading">Question 3: "Will a pilot under extreme emergency stress actually read your dashboard?"</h3>
+<div class="callout-box">**Answer:** *"We specifically designed the GCS Cockpit HUD following human factors aviation guidelines:</div>
+<div class="callout-box">- **Zero Text Overload in Emergency:** The banner uses distinct color coding (**CRITICAL RED**) and large flashing indicators (**SQUAWK 7700**).</div>
+<div class="callout-box">- **Big Digital RUL Timer:** Displays a massive 48px countdown clock (`08:09`) showing exact time remaining before engine seizure.</div>
+<div class="callout-box">- **3 Simple Action Cards:** Altitude Descent, Throttle De-Rating, and Airport Diversion.</div>
+<div class="callout-box">- **Numbered Checklist:** 1-2-3-4 step-by-step actions requiring zero calculation under stress."*</div>
+<h3 class="sub-heading">Question 4: "How will you handle military aviation certification (DGCA / DO-178C)?"</h3>
+<div class="callout-box">**Answer:** *"That is Phase 7 of our 7-phase roadmap. Currently, our system is configured as an **Auxiliary Decision-Support Tool (Health & Usage Monitoring System - HUMS)**, not a flight-critical primary autopilot. The pilot always retains final command authority. For future production integration, we follow DO-178C software compliance guidelines."*</div>
+<hr class="divider"/>
+<div class="page-break"></div>
+<h2 class="section-heading">8. Executive Summary (One-Pager)</h2>
+<h3 class="sub-heading">Project Overview</h3>
+<li class="bullet-item"><strong>Project Name:</strong> MALE UAV Engine Digital Twin, Health Monitoring & RUL Prediction</li>
+<li class="bullet-item"><strong>Problem Statement:</strong> DRDO SIH 26054 | Aeronautical Development Establishment (ADE)</li>
+<li class="bullet-item"><strong>Current Development Phase:</strong> Phase 1 — Software-Defined Physics MVP (Completed)</li>
+<li class="bullet-item"><strong>Target Deployment State:</strong> Fleet-Wide Airborne Edge ML + GCS Decision Support System</li>
+<li class="bullet-item"><strong>Core Software Reuse:</strong> <strong>80% Code Base Deployed As-Is</strong> (Only Data Ingestion Adapter Changes)</li>
+<h3 class="sub-heading">Why Simulation First?</h3>
+<p class="body-text">1. <strong>Military Secrecy:</strong> Real UAV flight telemetry is classified DEFENCE SECRET; no public failure datasets exist.</p>
+<p class="body-text">2. <strong>Capital Constraints:</strong> Physical aero-engine test cells cost ₹25–30 Lakh and require specialized DRDO facility clearances.</p>
+<p class="body-text">3. <strong>Hardware BOM:</strong> RF telemetry and flight computers cost ₹70,000+, exceeding hackathon limits.</p>
+<p class="body-text">4. <strong>Time Constraints:</strong> 48-hour hackathon duration demands rapid software-proven execution.</p>
+<h3 class="sub-heading">Key Achievements Proven in MVP (✅)</h3>
+<li class="bullet-item"><strong>Thermodynamic Fidelity:</strong> Physics simulator validated against FAA Lycoming IO-360 TCDS 1E10 standards.</li>
+<li class="bullet-item"><strong>High Diagnostic Accuracy:</strong> <strong>93.68% Weighted F1-Score</strong> across 7 fault categories on 52,352 test frames.</li>
+<li class="bullet-item"><strong>Prognostic Precision:</strong> <strong>63.62 seconds MAE</strong> for Remaining Useful Life (RUL) prediction.</li>
+<li class="bullet-item"><strong>Real-Time Edge Readiness:</strong> <strong>13.9 ms total pipeline inference latency</strong> with a lightweight <strong>408 MB RAM</strong> footprint.</li>
+<li class="bullet-item"><strong>Explainable AI (XAI):</strong> Real-time TreeSHAP feature attributions with natural language physics narratives.</li>
+<h3 class="sub-heading">Real Deployment Architecture</h3>
+<li class="bullet-item"><strong>Airborne Package (₹58,600):</strong> Engine Sensors $\rightarrow$ Pixhawk 6C Flight Computer $\rightarrow$ Raspberry Pi 4 Edge ML $\rightarrow$ RFD900x 900MHz Radio (40km Range).</li>
+<li class="bullet-item"><strong>Ground Package (₹60,000):</strong> Ground RF Receiver $\rightarrow$ MAVLink Stream Parser $\rightarrow$ XGBoost + TreeSHAP Engine $\rightarrow$ GCS Cockpit HUD.</li>
+<li class="bullet-item"><strong>Datalink Protocol:</strong> Standard MAVLink over 900 MHz RF / 4G Backup.</li>
+<h3 class="sub-heading">Migration Timeline & Cost Summary</h3>
+<li class="bullet-item"><strong>Hardware BOM Cost:</strong> <strong>₹1,18,600 total</strong> ($<0.004\%$ of ₹25 Crore MALE UAV cost).</li>
+<li class="bullet-item"><strong>Field Testing Ready:</strong> <strong>10–14 Weeks</strong> (Phases 2 through 6).</li>
+<li class="bullet-item"><strong>Fleet Production:</strong> <strong>6–12 Months</strong> (Phase 7 DO-178C Certification).</li>
+<div class="callout-box"><strong>🏆 Bottom-Line Engineering Conclusion</strong></div>
+<div class="callout-box">**We built a software-proven, physics-grounded, and hardware-agnostic system. Building a simulator first was not a compromise — it was the essential engineering foundation. When physical sensors arrive, we do not rebuild the software. We simply plug them in.**</div>
+</body>
+</html>
