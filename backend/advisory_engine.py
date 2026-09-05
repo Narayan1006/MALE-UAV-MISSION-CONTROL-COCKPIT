@@ -1,12 +1,12 @@
-"""
-Adaptive Mission Replanning & Pilot Emergency Advisory Engine
+﻿"""
+Adaptive Mission Replanning & Operator Emergency Advisory Engine
 =============================================================
 Module: backend.advisory_engine
-Author: SIH Digital Twin Team
+Author: AeroTwin Engineering Team
 Description:
   Rule-based physics and aeronautical expert system for in-flight contingency
   reaction, dynamic flight envelope de-rating, optimal altitude replanning,
-  diversion urgency assessment, and pilot emergency checklists.
+  diversion urgency assessment, and Operator Emergency checklists.
 """
 
 from typing import Dict, List, Optional, Any
@@ -143,7 +143,7 @@ class AdaptiveMissionPlanner:
             "descent_note": descent_note
         }
 
-    def generate_pilot_advisory(
+    def generate_Operator_advisory(
         self,
         fault_type: str,
         severity: float,
@@ -155,7 +155,7 @@ class AdaptiveMissionPlanner:
         current_health: Optional[Dict[str, float]] = None
     ) -> Dict[str, Any]:
         """
-        Master advisor: Synthesizes altitude, throttle, diversion, and pilot checklists.
+        Master advisor: Synthesizes altitude, throttle, diversion, and Operator checklists.
         """
         f = (fault_type or "none").lower()
         sev = float(severity or 0.0)
@@ -212,7 +212,7 @@ class AdaptiveMissionPlanner:
             ],
             "none": [
                 "Maintain standard flight plan and scan instruments",
-                "All engine subsystems operating within FAA/Lycoming certified envelopes"
+                "All engine subsystems operating within FAA/aviation-standard certified envelopes"
             ]
         }
         immediate_actions = actions_map.get(f, actions_map["none"])
@@ -229,7 +229,7 @@ class AdaptiveMissionPlanner:
         else:
             continue_prob = 8.0
 
-        # 5. Pilot Actionable Checklist
+        # 5. Operator Actionable Checklist
         checklist_map = {
             "cooling": [
                 f"1. Set Throttle: {thr_rec['recommended_throttle']:.2f}",
@@ -278,7 +278,7 @@ class AdaptiveMissionPlanner:
                 "3. Contact ATC / GCS with status update"
             ]
         }
-        pilot_checklist = checklist_map.get(f, checklist_map["none"])
+        Operator_checklist = checklist_map.get(f, checklist_map["none"])
 
         # 6. Squawk Code
         squawk_code = "7700" if (emergency_level == "critical" and div_rec["diversion_recommended"]) else None
@@ -292,6 +292,6 @@ class AdaptiveMissionPlanner:
             "throttle_recommendation": thr_rec,
             "diversion_assessment": div_rec,
             "mission_continue_probability": continue_prob,
-            "pilot_checklist": pilot_checklist,
+            "Operator_checklist": Operator_checklist,
             "squawk_code": squawk_code
         }

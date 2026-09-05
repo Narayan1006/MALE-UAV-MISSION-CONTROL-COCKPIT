@@ -1,8 +1,8 @@
-# MALE UAV Digital Twin — SIH26054
+﻿# AeroTwin Aircraft Engine Digital Twin — 
 
-**AI-Enabled Real-Time Digital Twin System for Health Monitoring, Fault Prediction and Mission Reliability Enhancement of Aero Piston Engines used in MALE UAVs**
+**AI-Enabled Real-Time Digital Twin System for Health Monitoring, Fault Prediction and Predictive Health Management of Aero Piston Engines used in Aircraft Engines**
 
-> **PS ID:** SIH26054 | **Org:** DRDO / IDEX | **Theme:** Robotics and Drones | **Deadline:** 20 Sept 2026
+> **PS ID:**  | **Org:** Commercial Aerospace | **Theme:** Robotics and Drones | **Deadline:** 20 Sept 2026
 
 ---
 
@@ -10,12 +10,12 @@
 
 Replaces threshold-based ("alert only after failure") engine monitoring with a predictive Digital Twin that:
 
-- Mirrors a MALE UAV's aero-piston engine in real time using a physics-informed simulator
+- Mirrors a Aircraft Engine's aero-piston engine in real time using a physics-informed simulator
 - Monitors 8 health parameters: RPM, CHT, EGT, oil pressure/temp, fuel flow, vibration, battery/alternator, injection timing
 - Detects and predicts 6 fault types: misfire, injector degradation, cooling failure, lubrication loss, sensor drift, vibration anomaly
 - Estimates Remaining Useful Life (RUL) and degradation trend
 - Simulates 4 mission scenarios: endurance, high altitude, hot weather, rapid throttle
-- Displays everything on a GCS-style operator dashboard
+- Displays everything on a Flight Deck-style operator dashboard
 
 ---
 
@@ -31,7 +31,7 @@ ML Core (live, low-latency)
         ↓                          ↓
   FastAPI Layer              LLM Explain Layer (async, advisory only)
         ↓                          ↓
-              Dashboard (GCS-style operator UI)
+              Dashboard (Flight Deck-style operator UI)
 ```
 
 The simulator is designed to be **swappable** for real CAN/ECU telemetry without changing anything downstream.
@@ -41,7 +41,7 @@ The simulator is designed to be **swappable** for real CAN/ECU telemetry without
 ## Project structure
 
 ```
-male-uav-digital-twin/
+aerotwin-engine-digital-twin/
 ├── simulator/          # physics-informed engine simulator
 ├── data/
 │   ├── raw/            # generated mission CSVs (train / val / test)
@@ -77,7 +77,7 @@ uvicorn backend.main:app --reload
 
 ## Important disclaimer
 
-This system uses a **reduced-order, physics-informed simulator** as the data source — not proprietary real MALE UAV engine data (which is classified). The PS explicitly permits simulated datasets for demonstration. All physical constants are calibrated to Rotax-912-class engines as defensible ballpark anchors. The system is described as a **prototype**, not a certified RUL predictor.
+This system uses a **reduced-order, physics-informed simulator** as the data source — not proprietary real Aircraft Engine engine data (which is classified). The PS explicitly permits simulated datasets for demonstration. All physical constants are calibrated to Rotax-912-class engines as defensible ballpark anchors. The system is described as a **prototype**, not a certified RUL predictor.
 
 ---
 

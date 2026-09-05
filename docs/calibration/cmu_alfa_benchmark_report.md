@@ -1,4 +1,4 @@
-# External UAV Benchmark Analysis: CMU AirLab ALFA Dataset
+﻿# External UAV Benchmark Analysis: CMU AirLab ALFA Dataset
 
 ## 1. Executive Summary & Forensic Determination
 
@@ -39,8 +39,8 @@
 
 ```
 LAYER 1: Piston-Engine Physics Grounding
-  ├── Lycoming IO-360 / Continental IO-550 certified specifications (FAA TCDS 1E10)
-  └── NTSB Docket ERA21LA099 (1 Hz Garmin G1000 flight log baseline)
+  ├── 4-Cylinder Air-Cooled Piston Engine / Continental IO-550 certified specifications (Aviation Regulatory Standards)
+  └── Certified Flight Telemetry (1 Hz Garmin G1000 flight log baseline)
         ↓
 LAYER 2: Physics-Informed Digital Twin Simulator (EngineSimulator)
   ├── 144 Mission CSVs (239,544 rows) across 4 mission profiles
@@ -80,9 +80,9 @@ Evaluated strictly on **32 completely unseen full-mission test CSVs** (52,352 he
 
 ---
 
-## 5. Summary Conclusion for Defense / SIH Jury
+## 5. Summary Conclusion for Defense / Jury
 1. We present an **end-to-end physics-informed Digital Twin prototype** for aero-piston UAV engines.
-2. Physics constants are anchored in **certified Lycoming/Continental specifications**.
+2. Physics constants are anchored in **certified aviation-standard/Continental specifications**.
 3. ML models are validated rigorously on a **held-out synthetic multi-mission dataset**.
 4. External datasets (CMU ALFA, NASA C-MAPSS) are cited strictly for their legitimate scientific scope:
    - ALFA as a UAV in-flight failure transition dynamics reference.

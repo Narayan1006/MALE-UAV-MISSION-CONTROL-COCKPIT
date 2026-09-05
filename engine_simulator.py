@@ -1,14 +1,14 @@
-"""
+﻿"""
 Reduced-Order Physics-Informed Engine Simulator
 =================================================
-MALE UAV aero-piston engine — Digital Twin data generation layer.
+Aircraft Engine aero-piston engine — Digital Twin data generation layer.
 
 WHY THESE EQUATIONS EXIST (read this before changing anything):
 - Every output depends on physically meaningful inputs (throttle, altitude, ambient temp)
   through a chain of simple first-order equations — not random noise.
 - Constants are approximate/plausible, based on typical small aero piston engines
   (Rotax-912-class: continuous RPM ~5500, oil pressure 22-72 psi, oil temp target
-  ~90-110C, CHT redline ~150C, EGT ~900C). These are NOT real MALE UAV engine
+  ~90-110C, CHT redline ~150C, EGT ~900C). These are NOT real Aircraft Engine engine
   constants (that data doesn't exist publicly) — they are defensible ballpark
   anchors so the simulated behaviour looks like a real engine.
 - If a judge asks "why does CHT rise when throttle increases" — answer:
@@ -32,7 +32,7 @@ def atmosphere(altitude_m: float, ambient_offset_c: float = 0.0):
     which is WHY engine performance changes at high altitude (less oxygen)."""
     T0, P0, L, R, g = 288.15, 101325.0, 0.0065, 287.05, 9.80665
     T = (T0 + ambient_offset_c) - L * altitude_m
-    T = max(T, 216.65)  # stratosphere floor, MALE UAVs rarely exceed this
+    T = max(T, 216.65)  # stratosphere floor, Aircraft Engines rarely exceed this
     P = P0 * (T / (T0 + ambient_offset_c)) ** (g / (R * L))
     rho = P / (R * T)
     return P, T, rho

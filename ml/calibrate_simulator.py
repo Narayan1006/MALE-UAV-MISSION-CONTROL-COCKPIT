@@ -1,16 +1,16 @@
-"""
-Calibration of Simulator Constants from Real NTSB Flight Telemetry & FAA TCDS Limits
+﻿"""
+Calibration of Simulator Constants from Real Aviation Safety Flight Telemetry & FAA TCDS Limits
 ====================================================================================
 Dataset Citation:
-  - Source: National Transportation Safety Board (NTSB) Official Public Docket
-  - Investigation: ERA21LA099 (Diamond Aircraft DA40 / Lycoming IO-360 Series)
-  - Docket URL: https://data.ntsb.gov/Docket?ProjectID=102515
+  - Source: National Transportation Safety Board (Aviation Safety) Official Public Docket
+  - Investigation: ERA21LA099 (Diamond Aircraft DA40 / 4-Cylinder Air-Cooled Piston Engine Series)
+  - Docket URL: https://data.Aviation Safety.gov/Docket?ProjectID=102515
   - File: log_210103_103720_KBVY-Rel.csv (Garmin G1000 1 Hz Datalog, 2,190 recorded seconds)
-  - Engine Class: Lycoming IO-360 air-cooled, direct-drive piston aero-engine
+  - Engine Class: 4-Cylinder Air-Cooled Piston Engine air-cooled, direct-drive piston aero-engine
 
 Theoretical & Regulatory Grounding:
   - FAA Type Certificate Data Sheet (TCDS 1E10)
-  - Lycoming Operators Manual (SSP-461-2)
+  - aviation-standard Operators Manual (SSP-461-2)
 """
 
 import json
@@ -29,10 +29,10 @@ PLOT_DIR = CALIB_DIR / "plots"
 CALIB_DIR.mkdir(parents=True, exist_ok=True)
 PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
-CSV_PATH = DATA_DIR / "real_ntsb_g1000_flight_log.csv"
+CSV_PATH = DATA_DIR / "real_Aviation Safety_g1000_flight_log.csv"
 
 # 1. Load and clean real Garmin G1000 telemetry log
-print("[1/4] Loading real NTSB Garmin G1000 flight log...")
+print("[1/4] Loading real Aviation Safety Garmin G1000 flight log...")
 df = pd.read_csv(CSV_PATH, skiprows=2, skipinitialspace=True)
 df = df.dropna(subset=["E1 RPM"]).copy()
 
@@ -98,7 +98,7 @@ print("[3/4] Generating validation and comparison plots...")
 
 # Plot 1: Real Flight Telemetry Profile
 fig, axes = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
-fig.suptitle("Real NTSB Garmin G1000 Flight Telemetry (Docket ERA21LA099, Diamond DA40 / Lycoming IO-360)", fontsize=11, fontweight="bold")
+fig.suptitle("Real Aviation Safety Garmin G1000 Flight Telemetry (Docket ERA21LA099, Diamond DA40 / 4-Cylinder Air-Cooled Piston Engine)", fontsize=11, fontweight="bold")
 
 axes[0].plot(df["time_s"], df["rpm"], color="#00bcd4", label="Engine RPM")
 axes[0].set_ylabel("RPM")
@@ -161,10 +161,10 @@ print("[4/4] Generating calibration report & saving parameters...")
 
 calib_summary = {
     "dataset_source": {
-        "agency": "National Transportation Safety Board (NTSB)",
+        "agency": "National Transportation Safety Board (Aviation Safety)",
         "docket_id": "ERA21LA099",
-        "docket_url": "https://data.ntsb.gov/Docket?ProjectID=102515",
-        "aircraft": "Diamond DA40-180 (Lycoming IO-360-M1A)",
+        "docket_url": "https://data.Aviation Safety.gov/Docket?ProjectID=102515",
+        "aircraft": "Diamond DA40-180 (4-Cylinder Air-Cooled Piston Engine-M1A)",
         "file_name": "log_210103_103720_KBVY-Rel.csv",
         "total_records": len(df),
         "sampling_rate": "1 Hz (per-second avionics datalog)"
@@ -194,20 +194,20 @@ json_out = CALIB_DIR / "calibrated_constants.json"
 with open(json_out, "w", encoding="utf-8") as f:
     json.dump(calib_summary, f, indent=2)
 
-report_content = f"""# Real-Data Calibration Report (NTSB Docket ERA21LA099 & FAA TCDS 1E10)
+report_content = f"""# Real-Data Calibration Report (Certified Flight Telemetry & Aviation Regulatory Standards)
 
 ## 1. Verified Flight Data Source
-- **Investigating Agency**: National Transportation Safety Board (NTSB)
-- **Docket Reference**: `ERA21LA099` ([NTSB Docket Project 102515](https://data.ntsb.gov/Docket?ProjectID=102515))
+- **Investigating Agency**: National Transportation Safety Board (Aviation Safety)
+- **Docket Reference**: `ERA21LA099` ([Aviation Safety Docket Project 102515](https://data.Aviation Safety.gov/Docket?ProjectID=102515))
 - **Avionics System**: Garmin G1000 Integrated Avionics System (1 Hz recorded flight datalog)
-- **Airframe / Engine**: Diamond DA40-180 powered by Lycoming IO-360-M1A (4-cylinder, direct-drive, air-cooled aero piston engine)
+- **Airframe / Engine**: Diamond DA40-180 powered by 4-Cylinder Air-Cooled Piston Engine-M1A (4-cylinder, direct-drive, air-cooled aero piston engine)
 - **Telemetry Records**: 2,190 seconds of continuous flight operations (Takeoff, Climb, Cruise, Maneuvers, Landing)
 
 ---
 
 ## 2. Parameter Extraction & Curve Fitting
 
-| Parameter | Fitted from Real Flight Log | Regulatory / OEM Limit (FAA TCDS 1E10) | Calibration Method |
+| Parameter | Fitted from Real Flight Log | Regulatory / OEM Limit (Aviation Regulatory Standards) | Calibration Method |
 |---|---|---|---|
 | **Max RPM** | **{max_rpm_real:.1f} RPM** | `2700.0 RPM` | 99th percentile during full-throttle climb |
 | **Idle RPM** | **{idle_rpm_real:.1f} RPM** | `600–700 RPM` certified idle | 2nd percentile during ground idle/taxi |
@@ -230,7 +230,7 @@ report_content = f"""# Real-Data Calibration Report (NTSB Docket ERA21LA099 & FA
 ---
 
 ## 4. Scientific Defense Summary
-1. **Zero Circularity**: Calibration parameters were extracted from genuine avionics flight data recovered during an official NTSB investigation.
+1. **Zero Circularity**: Calibration parameters were extracted from genuine avionics flight data recovered during an official Aviation Safety investigation.
 2. **Harmonized Standards**: All derived constants strictly obey the certified Type Certificate Data Sheet (TCDS 1E10) limits.
 """
 

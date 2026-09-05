@@ -1,6 +1,6 @@
-services:
+﻿services:
   - type: web
-    name: sih26054-male-uav-digital-twin
+    name: -aerotwin-engine-digital-twin
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Task 5 — Supplementary Real-Baseline Validation Script
 ======================================================
 Takes authentic GA flight logs from data/reference/ga_engine_logs/,
@@ -163,7 +163,7 @@ report_md = f"""# Supplementary Real-Baseline Validation Report (Task 5)
 This experiment validates whether the Digital Twin AI models—trained purely on the physics-calibrated simulator—successfully generalize when tested against **real General Aviation (GA) flight telemetry** with an injected progressive degradation pattern.
 
 ## Test Configuration
-- **Baseline Data**: Authentic Garmin G1000 / Lycoming IO-360 flight log (`data/reference/ga_engine_logs/ga_piston_flight_log_1.csv`).
+- **Baseline Data**: Authentic Garmin G1000 / 4-Cylinder Air-Cooled Piston Engine flight log (`data/reference/ga_engine_logs/ga_piston_flight_log_1.csv`).
 - **Injected Fault**: Progressive fuel injector restriction (25% fuel flow reduction + lean thermal deviation) starting at `t = 600s`.
 - **Isolation**: Stored separately in `data/reference/supplementary_val/` (never mixed into training).
 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 CMU AirLab ALFA Dataset Inspection & Forensic Verification Script
 ==================================================================
 Purpose:
@@ -47,7 +47,7 @@ for s in piston_engine_required_signals:
 
 print("\nALFA Dataset Actual Channels:")
 for t in alfa_actual_topics:
-    print(f"  + {t:35s}: Present (Flight Dynamics & Autopilot Telemetry)")
+    print(f"  + {t:35s}: Present (Flight Dynamics & AutoOperator Telemetry)")
 
 print("\n" + "="*75)
 print("  FORENSIC VERDICT:")

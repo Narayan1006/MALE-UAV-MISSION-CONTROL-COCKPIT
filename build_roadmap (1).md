@@ -1,4 +1,4 @@
-# MALE UAV Digital Twin — Detailed Build Roadmap
+﻿# AeroTwin Aircraft Engine Digital Twin — Detailed Build Roadmap
 
 This is the full step-by-step build plan, expanded from the base-level order already agreed on. No code here — this is the *what* and *how*, phase by phase, with acceptance criteria for each so you know when to move to the next one.
 
@@ -8,7 +8,7 @@ This is the full step-by-step build plan, expanded from the base-level order alr
 |---|---|---|
 | Physics-informed engine simulator | `engine_simulator.py` | Built, tested, stable |
 | Dataset column reference | `simulation_data_dictionary.md` | Complete |
-| PS requirements breakdown | `PS26054_explained.md` | Complete |
+| PS requirements breakdown | `_explained.md` | Complete |
 | System architecture (ML live / LLM explain) | diagram from earlier | Agreed |
 
 ---
@@ -17,7 +17,7 @@ This is the full step-by-step build plan, expanded from the base-level order alr
 
 **Folder structure:**
 ```
-male-uav-digital-twin/
+aerotwin-engine-digital-twin/
 ├── simulator/          # engine_simulator.py goes here
 ├── data/
 │   ├── raw/             # generated mission CSVs
@@ -34,7 +34,7 @@ male-uav-digital-twin/
 - `git init`, push to GitHub/GitLab, add all teammates as collaborators
 - `requirements.txt`: numpy, pandas, scikit-learn, xgboost, torch, fastapi, uvicorn, matplotlib
 - Move `engine_simulator.py` into `simulator/`, confirm it still runs and writes to `data/raw/`
-- Write a one-paragraph README explaining the project (copy from PS26054_explained.md summary)
+- Write a one-paragraph README explaining the project (copy from _explained.md summary)
 
 **Acceptance criteria:** Fresh clone of the repo + `pip install -r requirements.txt` + `python simulator/engine_simulator.py` produces CSVs with no errors.
 
@@ -174,7 +174,7 @@ Only attempt these once Phases 1-8 all work end-to-end. Priority order if time i
 3. **Edge/onboard split** — split the anomaly detector (Phase 4) into a "lightweight onboard" version vs the full pipeline running on the ground station
 4. **CAN bus interface** (`python-can` + virtual CAN) — swap the simulator's direct API calls for a CAN-message layer in between, to demonstrate the real deployment path
 5. **Fleet view** — 3-4 simulated UAVs shown together on the dashboard
-6. Documentation pass — technical roadmap doc, honest disclaimers section (reuse language from `PS26054_explained.md`), synopsis, PPT
+6. Documentation pass — technical roadmap doc, honest disclaimers section (reuse language from `_explained.md`), synopsis, PPT
 
 ---
 

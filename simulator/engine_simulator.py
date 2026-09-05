@@ -1,18 +1,18 @@
-"""
+﻿"""
 Reduced-Order Physics-Informed Engine Simulator
 =================================================
-MALE UAV aero-piston engine — Digital Twin data generation layer.
+Aircraft Engine aero-piston engine — Digital Twin data generation layer.
 
 PHYSICS CONSTANTS — REAL DATA CALIBRATION & SOURCE CITATION
 -------------------------------------------------------------
 All default EngineConstants values are calibrated directly from an authentic
 1 Hz Garmin G1000 flight datalog recovered during an official National
-Transportation Safety Board (NTSB) investigation, harmonized with FAA TCDS 1E10.
+Transportation Safety Board (Aviation Safety) investigation, harmonized with Aviation Regulatory Standards.
 
 Source Citation:
-  - NTSB Docket: ERA21LA099 (Project ID: 102515)
-  - Docket URL: https://data.ntsb.gov/Docket?ProjectID=102515
-  - Aircraft: Diamond DA40-180 powered by Lycoming IO-360-M1A (Air-cooled, 4-cylinder, direct-drive)
+  - Aviation Safety Docket: ERA21LA099 (Project ID: 102515)
+  - Docket URL: https://data.Aviation Safety.gov/Docket?ProjectID=102515
+  - Aircraft: Diamond DA40-180 powered by 4-Cylinder Air-Cooled Piston Engine-M1A (Air-cooled, 4-cylinder, direct-drive)
   - Telemetry File: log_210103_103720_KBVY-Rel.csv (2,190 recorded seconds)
   - FAA Type Certificate Data Sheet: TCDS 1E10
 
@@ -35,7 +35,7 @@ def atmosphere(altitude_m: float, ambient_offset_c: float = 0.0):
     which is WHY engine performance changes at high altitude (less oxygen)."""
     T0, P0, L, R, g = 288.15, 101325.0, 0.0065, 287.05, 9.80665
     T = (T0 + ambient_offset_c) - L * altitude_m
-    T = max(T, 216.65)  # stratosphere floor, MALE UAVs rarely exceed this
+    T = max(T, 216.65)  # stratosphere floor, Aircraft Engines rarely exceed this
     P = P0 * (T / (T0 + ambient_offset_c)) ** (g / (R * L))
     rho = P / (R * T)
     return P, T, rho
@@ -128,25 +128,25 @@ class FaultSchedule:
 # ---------------------------------------------------------------------------
 @dataclass
 class EngineConstants:
-    # --- RPM [NTSB G1000 Fit: Idle 809 RPM, Max 2641 RPM | TCDS 1E10 rated max: 2700 RPM] ---
+    # --- RPM [Aviation Safety G1000 Fit: Idle 809 RPM, Max 2641 RPM | TCDS 1E10 rated max: 2700 RPM] ---
     idle_rpm: float = 809.1          # RPM — taxi/idle from G1000 log
     max_rpm: float = 2641.3          # RPM — full throttle takeoff/climb from G1000 log
     tau_rpm: float = 3.2             # s   — first-order RPM response time constant
     k_fuel: float = 0.012            # fuel-flow proportionality constant
 
-    # --- CHT [NTSB G1000 Fit: Max Rise 186.8°C | Redline 260°C] ---
+    # --- CHT [Aviation Safety G1000 Fit: Max Rise 186.8°C | Redline 260°C] ---
     cht_rise_max: float = 186.8      # degC — peak CHT rise above ambient
     tau_cht: float = 42.0            # s    — thermal time constant from climb transition
 
-    # --- EGT [NTSB G1000 Empirical Linear Fit: EGT = 508.35 + 1.3317 * CHT] ---
+    # --- EGT [Aviation Safety G1000 Empirical Linear Fit: EGT = 508.35 + 1.3317 * CHT] ---
     egt_base: float = 508.35         # degC — EGT intercept
     egt_gain: float = 1.3317         # degC/degC — EGT/CHT linear coefficient
 
-    # --- Oil Temp [NTSB G1000 Fit: Max Rise 78.7°C] ---
+    # --- Oil Temp [Aviation Safety G1000 Fit: Max Rise 78.7°C] ---
     oil_rise_max: float = 78.7       # degC — max oil temp rise above ambient
     tau_oil: float = 80.0            # s    — oil thermal time constant
 
-    # --- Oil Pressure [NTSB G1000 Fit: Base 52.7 psi, Slope 23.5 psi | Max ~76.2 psi] ---
+    # --- Oil Pressure [Aviation Safety G1000 Fit: Base 52.7 psi, Slope 23.5 psi | Max ~76.2 psi] ---
     pressure_base: float = 52.7      # psi  — oil pressure at idle
     pressure_slope: float = 23.5     # psi  — pressure range to max RPM
     pressure_temp_penalty: float = 0.12  # psi/degC — viscosity-driven pressure drop with temp

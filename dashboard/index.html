@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MALE UAV Engine Digital Twin | Mission Control Cockpit</title>
+  <title>Aircraft Engine Engine Digital Twin | Flight Deck</title>
   <link rel="stylesheet" href="css/style.css">
   <!-- Chart.js for High-Frequency Telemetry & XAI Graphs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="gcs-container">
+  <div class="aerotwin-container">
     
     <!-- =======================================================================
          1. TOP NAVIGATION & MISSION CLOCK HEADER
          ======================================================================= -->
-    <header class="gcs-header">
+    <header class="aerotwin-header">
       <div class="header-branding">
         <div class="status-indicator live" id="liveStatusIndicator"></div>
         <div>
-          <h1>🦅 MALE UAV MISSION CONTROL COCKPIT</h1>
-          <span class="header-subtitle">DRDO SIH26054 | Real-Time Physics Digital Twin, Diagnostics & Explainable AI (TreeSHAP)</span>
+          <h1>🦅 Aircraft Engine Flight Deck</h1>
+          <span class="header-subtitle"> | Real-Time Physics Digital Twin, Diagnostics & Explainable AI (TreeSHAP)</span>
         </div>
       </div>
 
@@ -112,7 +112,7 @@
           <span>🎮 Throttle Command</span>
           <span id="txtThrottle" class="control-val">70%</span>
         </div>
-        <input type="range" id="sliderThrottle" min="0" max="100" value="70" class="gcs-slider">
+        <input type="range" id="sliderThrottle" min="0" max="100" value="70" class="aerotwin-slider">
       </div>
 
       <div class="deck-section">
@@ -120,7 +120,7 @@
           <span>🏔️ Flight Altitude</span>
           <span id="txtAltitude" class="control-val">1,500 m</span>
         </div>
-        <input type="range" id="sliderAltitude" min="0" max="7500" step="100" value="1500" class="gcs-slider">
+        <input type="range" id="sliderAltitude" min="0" max="7500" step="100" value="1500" class="aerotwin-slider">
       </div>
 
       <div class="deck-section" style="flex: 2;">
@@ -143,14 +143,14 @@
           <button class="btn-preset" data-sev="65">Moderate (65%)</button>
           <button class="btn-preset" data-sev="90">Severe (90%)</button>
           <button class="btn-preset" data-sev="0">Clear</button>
-          <input type="range" id="sliderSeverity" min="0" max="100" value="0" class="gcs-slider slider-danger" style="flex: 1; margin-left: 8px;">
+          <input type="range" id="sliderSeverity" min="0" max="100" value="0" class="aerotwin-slider slider-danger" style="flex: 1; margin-left: 8px;">
         </div>
       </div>
 
       <div class="deck-actions">
-        <button id="btnLiveStart" class="btn-gcs btn-primary">▶ Start Twin</button>
-        <button id="btnLivePause" class="btn-gcs">⏸ Pause</button>
-        <button id="btnLiveReset" class="btn-gcs btn-reset">🔄 Reset</button>
+        <button id="btnLiveStart" class="btn-aerotwin btn-primary">▶ Start Twin</button>
+        <button id="btnLivePause" class="btn-aerotwin">⏸ Pause</button>
+        <button id="btnLiveReset" class="btn-aerotwin btn-reset">🔄 Reset</button>
       </div>
     </div>
 
@@ -158,7 +158,7 @@
     <div id="deckReplay" class="control-deck">
       <div class="deck-section" style="flex: 2;">
         <label for="missionSelect" style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Select Pre-Recorded Flight Mission (32 Scenarios):</label>
-        <select id="missionSelect" class="gcs-select">
+        <select id="missionSelect" class="aerotwin-select">
           <option value="">Loading flight missions...</option>
         </select>
       </div>
@@ -173,9 +173,9 @@
       </div>
 
       <div class="deck-actions" style="margin-top: 14px;">
-        <button id="btnReplayPlay" class="btn-gcs btn-primary">▶ Start Replay</button>
-        <button id="btnReplayPause" class="btn-gcs">⏸ Pause</button>
-        <button id="btnReplayReset" class="btn-gcs btn-reset">🔄 Reset</button>
+        <button id="btnReplayPlay" class="btn-aerotwin btn-primary">▶ Start Replay</button>
+        <button id="btnReplayPause" class="btn-aerotwin">⏸ Pause</button>
+        <button id="btnReplayReset" class="btn-aerotwin btn-reset">🔄 Reset</button>
       </div>
     </div>
 
@@ -205,7 +205,7 @@
               <div class="metric-tile">
                 <div class="metric-label">Anomaly Score</div>
                 <div id="valAnomalyScore" class="metric-value" style="color: var(--accent-cyan);">0.05</div>
-                <div class="metric-unit">Isolation Forest</div>
+                <div class="metric-unit" id="unitAnomalyScore">Isolation Forest</div>
               </div>
               <div class="metric-tile">
                 <div class="metric-label">Engine RPM</div>
@@ -338,7 +338,7 @@
       <div class="cockpit-column">
         <section class="card" style="flex: 1;">
           <div class="card-header">
-            <span>AI Diagnostics & Pilot Advisory</span>
+            <span>AI Diagnostics & Flight Engineer Advisory</span>
             <span class="badge-tag tag-ok">XGBoost + SHAP</span>
           </div>
           <div class="card-body">
@@ -381,12 +381,12 @@
               </div>
             </div>
 
-            <!-- Pilot Action Checklist -->
+            <!-- Operator Action Checklist -->
             <div class="checklist-box">
-              <div class="checklist-title">PILOT ACTION CHECKLIST</div>
+              <div class="checklist-title">Operator Action CHECKLIST</div>
               <div class="checklist-items" id="checklistItems">
-                <div class="checklist-item">✓ All engine systems operating within FAA/Lycoming certified limits.</div>
-                <div class="checklist-item">✓ Cruise parameters nominal. No pilot intervention required.</div>
+                <div class="checklist-item">✓ All engine systems operating within FAA/aviation-standard certified limits.</div>
+                <div class="checklist-item">✓ Cruise parameters nominal. No Operator intervention required.</div>
               </div>
             </div>
 
@@ -398,8 +398,8 @@
               </div>
 
               <div id="shapBarsContainer">
-                <div class="shap-quote" id="shapQuoteText">
-                  "Engine operating inside nominal thermodynamic boundary. Zero anomaly attribution."
+                <div class="shap-empty-state" id="shapEmptyState">
+                  ℹ️ No active fault — explainability panel activates when a fault is detected above 60% confidence.
                 </div>
               </div>
             </div>
@@ -424,6 +424,54 @@
               </div>
             </div>
 
+            <!-- Cost & Impact Analysis Panel -->
+            <div class="cost-impact-panel">
+              <div class="cost-impact-header">
+                <span>💰 Operational Cost & Impact</span>
+                <span class="badge-tag tag-ok">Edge Economics</span>
+              </div>
+              <div class="cost-impact-body">
+                <p class="cost-impact-text">
+                  <strong>The Math:</strong> The hardware add-on ($833–$1,007) is ~7–8% of platform value on lower-end UAVs ($12,000) and ~1% on high-end airframes ($100,000+). Avoiding a single lost airframe pays for the hardware many times over.<br>
+                  <strong>The Mechanism:</strong> Early fault detection (RUL prediction + adaptive advisory, 94.03% accuracy, ~2.5ms edge latency) converts a catastrophic in-flight failure into an orderly precautionary landing.
+                </p>
+                <table class="cost-impact-table">
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Without AeroTwin</th>
+                      <th>With AeroTwin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="ci-metric">Fault Awareness</td>
+                      <td class="ci-without">Warning light at failure onset</td>
+                      <td class="ci-with">Predictive alert minutes before onset</td>
+                    </tr>
+                    <tr>
+                      <td class="ci-metric">Action Time</td>
+                      <td class="ci-without">Seconds to react</td>
+                      <td class="ci-with">Minutes to execute planned diversion</td>
+                    </tr>
+                    <tr>
+                      <td class="ci-metric">Outcome</td>
+                      <td class="ci-without danger">High risk of forced landing / hull loss</td>
+                      <td class="ci-with success">Controlled precautionary landing</td>
+                    </tr>
+                    <tr>
+                      <td class="ci-metric">Hardware Cost</td>
+                      <td class="ci-without">$0</td>
+                      <td class="ci-with">$833 – $1,007</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="cost-impact-disclaimer">
+                  All cost and impact claims represent projected operational outcomes based on 94.03% validation accuracy on simulated data. Real-world validation on physical flight hardware is required.
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
       </div>
@@ -445,7 +493,7 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Mission Profile:</label>
-              <select id="pfMissionProfile" class="gcs-select">
+              <select id="pfMissionProfile" class="aerotwin-select">
                 <option value="endurance">Endurance (Long Range Cruise)</option>
                 <option value="high_altitude">High Altitude (6,000m Ceiling)</option>
                 <option value="hot_weather">Hot Weather (ISA + 20°C Desert)</option>
@@ -454,37 +502,37 @@
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Planned Duration (Minutes):</label>
-              <input type="number" id="pfDuration" class="gcs-select" value="120" min="30" max="360">
+              <input type="number" id="pfDuration" class="aerotwin-select" value="120" min="30" max="360">
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Ambient Sea-Level Temp (°C):</label>
-              <input type="number" id="pfAmbientTemp" class="gcs-select" value="35">
+              <input type="number" id="pfAmbientTemp" class="aerotwin-select" value="35">
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Initial Cylinder Health (%):</label>
-              <input type="range" id="pfCylHealth" min="50" max="100" value="95" class="gcs-slider">
+              <input type="range" id="pfCylHealth" min="50" max="100" value="95" class="aerotwin-slider">
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
             <div>
               <label style="font-size: 0.70rem; color: var(--text-muted); display: block;">Lubrication (%):</label>
-              <input type="range" id="pfLubHealth" min="50" max="100" value="92" class="gcs-slider">
+              <input type="range" id="pfLubHealth" min="50" max="100" value="92" class="aerotwin-slider">
             </div>
             <div>
               <label style="font-size: 0.70rem; color: var(--text-muted); display: block;">Cooling (%):</label>
-              <input type="range" id="pfCoolHealth" min="50" max="100" value="88" class="gcs-slider">
+              <input type="range" id="pfCoolHealth" min="50" max="100" value="88" class="aerotwin-slider">
             </div>
             <div>
               <label style="font-size: 0.70rem; color: var(--text-muted); display: block;">Vibration (%):</label>
-              <input type="range" id="pfVibHealth" min="50" max="100" value="97" class="gcs-slider">
+              <input type="range" id="pfVibHealth" min="50" max="100" value="97" class="aerotwin-slider">
             </div>
           </div>
 
-          <button id="btnRunPreflightCheck" class="btn-gcs btn-primary" style="padding: 10px; font-size: 0.85rem; width: 100%;">
+          <button id="btnRunPreflightCheck" class="btn-aerotwin btn-primary" style="padding: 10px; font-size: 0.85rem; width: 100%;">
             ⚡ RUN 50 MONTE CARLO DIGITAL TWIN SIMULATIONS
           </button>
 
@@ -512,7 +560,7 @@
               <div id="pfRecommendationsList" class="checklist-items"></div>
             </div>
 
-            <button id="btnExportPfReport" class="btn-gcs" style="width: 100%;">📥 EXPORT JSON REPORT</button>
+            <button id="btnExportPfReport" class="btn-aerotwin" style="width: 100%;">📥 EXPORT JSON REPORT</button>
           </div>
 
         </div>
@@ -543,8 +591,8 @@
     <!-- =======================================================================
          7. FOOTER
          ======================================================================= -->
-    <footer class="gcs-footer">
-      <div>DRDO MALE UAV Propulsion Digital Twin • Validated on Lycoming IO-360 Physics & CMU AirLab ALFA Benchmark</div>
+    <footer class="aerotwin-footer">
+      <div>AeroTwin Aircraft Engine Propulsion Digital Twin • Validated on 4-Cylinder Air-Cooled Piston Engine Physics & CMU AirLab ALFA Benchmark</div>
       <div>FastAPI Engine Server: <span id="footerServerStatus" style="color: var(--accent-green); font-family: var(--font-mono);">ONLINE (127.0.0.1:8000)</span></div>
     </footer>
 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 FastAPI Telemetry, Live Interactive Digital Twin & Mission Replay Server
 ========================================================================
 Endpoints:
@@ -44,7 +44,7 @@ RAW_DATA_DIR = ROOT / "data" / "raw"
 
 # Initialize FastAPI App
 app = FastAPI(
-    title="MALE UAV Digital Twin Engine Monitoring API",
+    title="AeroTwin Aircraft Engine Digital Twin Engine Monitoring API",
     description="Real-Time Digital Twin Physics Simulator, Anomaly Detection & RUL Advisory",
     version="2.0.0"
 )
@@ -188,7 +188,7 @@ class MissionReliabilityResponse(BaseModel):
     worst_case_metrics: WorstCaseMetrics
     recommendations: List[str]
 
-class PilotAdvisoryRequest(BaseModel):
+class OperatorAdvisoryRequest(BaseModel):
     fault_type: str = Field("none", description="none | injector | cooling | lubrication | misfire | sensor_drift | vibration")
     severity: float = Field(0.0, ge=0.0, le=1.0)
     rul_seconds: Optional[float] = Field(None, description="Estimated Remaining Useful Life in seconds")
@@ -434,7 +434,7 @@ def step_live_simulation(req: LiveSimStepRequest):
         "avionics_sensors": round(max(0.0, 1.0 - (0.7 if req.injected_fault == "sensor_drift" else 0.0) * req.fault_severity), 2),
     }
 
-    # 6. Actionable Pilot Advisory Generation
+    # 6. Actionable Flight Engineer Advisory Generation
     t0_adv = time.perf_counter()
     if pred_fault != "none" and p_state.health_index < 0.92:
         advisory_level = "CRITICAL"
@@ -442,7 +442,7 @@ def step_live_simulation(req: LiveSimStepRequest):
             f"1. Reduce throttle to {(req.throttle * 0.75):.2f} to lower thermal load.",
             "2. Pitch down slightly to maintain airspeed for cylinder head ram-air cooling.",
             f"3. INITIATE DIVERT: Estimated safe flight window is {pred_rul or 0:.0f} seconds.",
-            "4. Alert Ground Control Station (GCS) and squawk 7700 emergency."
+            "4. Alert Mission Control and squawk 7700 emergency."
         ]
     elif anom_score > 0.65 and p_state.health_index < 0.88:
         advisory_level = "WARNING"
@@ -454,8 +454,8 @@ def step_live_simulation(req: LiveSimStepRequest):
     else:
         advisory_level = "NOMINAL"
         action_plan = [
-            "All engine systems operating within FAA/Lycoming certified limits.",
-            "Cruise parameters nominal. No pilot intervention required."
+            "All engine systems operating within FAA/aviation-standard certified limits.",
+            "Cruise parameters nominal. No Operator intervention required."
         ]
     lat_adv = (time.perf_counter() - t0_adv) * 1000.0
 
@@ -731,15 +731,15 @@ def preflight_reliability_check(req: MissionReliabilityRequest):
     )
 
 @app.post("/advisory/generate")
-def generate_advisory(req: PilotAdvisoryRequest):
+def generate_advisory(req: OperatorAdvisoryRequest):
     """
-    In-Flight Pilot Emergency & Adaptive Mission Replanning Advisory:
+    In-Flight Operator Emergency & Adaptive Mission Replanning Advisory:
     - Calculates safe throttle de-rating envelope
     - Determines optimal altitude replanning based on thermodynamic fault physics
     - Evaluates emergency diversion urgency to nearest airbase
-    - Generates actionable pilot checklists and emergency squawk codes
+    - Generates actionable Operator checklists and emergency squawk codes
     """
-    return advisory_planner.generate_pilot_advisory(
+    return advisory_planner.generate_Operator_advisory(
         fault_type=req.fault_type,
         severity=req.severity,
         rul_seconds=req.rul_seconds,
@@ -984,7 +984,7 @@ async def run_benchmark(req: BenchmarkRequest):
         rec = "System handles real-time concurrency with high headroom for edge deployment."
     elif p95 < 100.0 and fail_count == 0:
         grade = "good"
-        rec = "Good real-time performance within MALE UAV GCS telemetry budgets."
+        rec = "Good real-time performance within Aircraft Engine GCS telemetry budgets."
     elif p95 < 500.0:
         grade = "fair"
         rec = "Acceptable latency; consider batching or quantization for low-power edge."
@@ -1013,7 +1013,7 @@ async def run_benchmark(req: BenchmarkRequest):
     }
 
 # ---------------------------------------------------------------------------
-# Mount GCS Mission Control Cockpit Static Files
+# Mount GCS Flight Deck Static Files
 # ---------------------------------------------------------------------------
 from fastapi.staticfiles import StaticFiles
 

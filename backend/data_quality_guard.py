@@ -1,8 +1,8 @@
-"""
+﻿"""
 Sensor Robustness & Real-Time Data Quality Guard Layer
 ======================================================
 Module: backend.data_quality_guard
-Author: SIH Digital Twin Team
+Author: AeroTwin Engineering Team
 Description:
   High-frequency (1 Hz) telemetry hygiene guard. Performs statistical outlier
   filtering, packet loss dropout detection, adaptive last-known/model-based imputation,

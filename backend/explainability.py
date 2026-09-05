@@ -1,5 +1,5 @@
-"""
-Explainable AI (XAI) Engine using TreeSHAP for MALE UAV Digital Twin
+﻿"""
+Explainable AI (XAI) Engine using TreeSHAP for AeroTwin Aircraft Engine Digital Twin
 ====================================================================
 Module: backend.explainability
 Description:
@@ -75,7 +75,7 @@ class XGBExplainer:
             self.rul_explainer = shap.TreeExplainer(self.rul_regressor)
 
     def _get_nominal_range(self, feature_name: str) -> str:
-        """Maps feature names to FAA / Lycoming certified nominal operating envelopes."""
+        """Maps feature names to FAA / aviation-standard certified nominal operating envelopes."""
         fn = feature_name.lower()
         if "cht" in fn:
             return "140–200°C (Redline 260°C)"

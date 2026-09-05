@@ -1,4 +1,4 @@
-"""
+﻿"""
 Supplementary Benchmark — NASA C-MAPSS Algorithmic Sanity Check
 ===============================================================
 IMPORTANT DOMAIN BOUNDARY & SCOPE:
@@ -8,7 +8,7 @@ IMPORTANT DOMAIN BOUNDARY & SCOPE:
     to prove that our rolling-window feature extraction + gradient-boosted RUL
     regression pipeline functions reliably on standard PHM benchmark datasets.
   - This script does NOT validate our piston-engine propulsion model.
-    Piston engine physics are validated against Lycoming/Continental published
+    Piston engine physics are validated against aviation-standard/Continental published
     manufacturer data, and UAV-level flight anomalies are benchmarked on CMU ALFA.
 """
 

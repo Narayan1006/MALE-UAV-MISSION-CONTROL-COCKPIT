@@ -1,4 +1,4 @@
-# Supplementary Benchmark: NASA C-MAPSS Algorithmic Verification
+﻿# Supplementary Benchmark: NASA C-MAPSS Algorithmic Verification
 
 > [!IMPORTANT]
 > **Domain Boundary & Disclaimer**:
@@ -23,4 +23,4 @@
 
 ## 3. Strict Methodological Isolation
 1. **No Data Mixing**: C-MAPSS data was evaluated in a standalone script and was never mixed or trained together with our UAV piston engine simulator.
-2. **Propulsion Domain Integrity**: Piston engine operating dynamics (CHT, EGT, oil pressure, fuel flow) are grounded in verified aviation piston engine research (Lycoming/Continental), while UAV in-flight flight anomalies are benchmarked on the CMU AirLab ALFA dataset.
+2. **Propulsion Domain Integrity**: Piston engine operating dynamics (CHT, EGT, oil pressure, fuel flow) are grounded in verified aviation piston engine research (aviation-standard/Continental), while UAV in-flight flight anomalies are benchmarked on the CMU AirLab ALFA dataset.

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   DRDO MALE UAV AERO-ENGINE DIGITAL TWIN — MISSION CONTROL COCKPIT STYLES
+   AeroTwin Aircraft Engine AERO-ENGINE DIGITAL TWIN — Flight Deck STYLES
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -67,7 +67,7 @@ body {
   background: var(--accent-sky);
 }
 
-.gcs-container {
+.aerotwin-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -78,7 +78,7 @@ body {
 /* ==========================================================================
    1. TOP NAVIGATION HEADER
    ========================================================================== */
-.gcs-header {
+.aerotwin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -376,7 +376,7 @@ body {
   color: var(--accent-cyan);
 }
 
-.gcs-slider {
+.aerotwin-slider {
   width: 100%;
   height: 5px;
   border-radius: 3px;
@@ -387,7 +387,7 @@ body {
   cursor: pointer;
 }
 
-.gcs-slider::-webkit-slider-thumb {
+.aerotwin-slider::-webkit-slider-thumb {
   appearance: none;
   width: 13px;
   height: 13px;
@@ -397,7 +397,7 @@ body {
   box-shadow: 0 0 8px var(--accent-cyan);
 }
 
-.gcs-slider.slider-danger::-webkit-slider-thumb {
+.aerotwin-slider.slider-danger::-webkit-slider-thumb {
   background: var(--accent-danger);
   box-shadow: 0 0 8px var(--accent-danger);
 }
@@ -466,7 +466,7 @@ body {
   gap: 6px;
 }
 
-.btn-gcs {
+.btn-aerotwin {
   background: var(--bg-primary);
   border: 1px solid var(--border-card);
   color: var(--text-main);
@@ -479,27 +479,27 @@ body {
   white-space: nowrap;
 }
 
-.btn-gcs:hover {
+.btn-aerotwin:hover {
   background: #1e293b;
   border-color: var(--accent-sky);
 }
 
-.btn-gcs.btn-primary {
+.btn-aerotwin.btn-primary {
   background: var(--accent-blue);
   border-color: var(--accent-blue);
   color: #fff;
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
 }
 
-.btn-gcs.btn-primary:hover {
+.btn-aerotwin.btn-primary:hover {
   background: #2563eb;
 }
 
-.btn-gcs.btn-reset {
+.btn-aerotwin.btn-reset {
   color: var(--text-muted);
 }
 
-.gcs-select {
+.aerotwin-select {
   width: 100%;
   background: var(--bg-input);
   color: var(--text-main);
@@ -957,7 +957,7 @@ body {
 .recom-label { font-size: 0.60rem; color: var(--text-dim); text-transform: uppercase; }
 .recom-val { font-size: 0.68rem; font-weight: 700; color: var(--text-main); margin-top: 2px; }
 
-/* Pilot Checklist */
+/* Operator Checklist */
 .checklist-box {
   background: var(--bg-deck);
   border: 1px solid var(--border-subtle);
@@ -1060,6 +1060,18 @@ body {
   margin-top: 4px;
 }
 
+.shap-empty-state {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  background: var(--bg-primary);
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px dashed var(--border-subtle);
+  text-align: center;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
 /* Auxiliary Numerical Grid */
 .aux-grid {
   display: grid;
@@ -1076,6 +1088,97 @@ body {
 
 .aux-lbl { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; }
 .aux-v { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; color: var(--text-main); }
+
+/* Cost & Impact Panel */
+.cost-impact-panel {
+  background: var(--bg-deck);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.cost-impact-header {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cost-impact-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cost-impact-text {
+  font-size: 0.65rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.cost-impact-text strong {
+  color: var(--accent-sky);
+}
+
+.cost-impact-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.62rem;
+}
+
+.cost-impact-table th {
+  background: var(--bg-primary);
+  color: var(--text-dim);
+  text-align: left;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cost-impact-table td {
+  padding: 3px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ci-metric {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.ci-without {
+  color: var(--text-dim);
+}
+
+.ci-without.danger {
+  color: var(--accent-danger);
+}
+
+.ci-with {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.ci-with.success {
+  color: var(--accent-green);
+}
+
+.cost-impact-disclaimer {
+  font-size: 0.58rem;
+  line-height: 1.25;
+  color: var(--text-dim);
+  border-left: 2px solid var(--accent-amber);
+  padding-left: 6px;
+  margin-top: 2px;
+  font-style: italic;
+}
 
 /* ==========================================================================
    8. MODALS (PRE-FLIGHT & SHAP IMPORTANCE)
@@ -1189,7 +1292,7 @@ body {
 .toast.danger { border-color: var(--accent-danger); }
 
 /* Footer */
-.gcs-footer {
+.aerotwin-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -1,5 +1,5 @@
 /**
- * DRDO MALE UAV AERO-ENGINE DIGITAL TWIN — MISSION CONTROL COCKPIT ORCHESTRATOR
+ * AeroTwin Aircraft Engine AERO-ENGINE DIGITAL TWIN — Flight Deck ORCHESTRATOR
  * ==============================================================================
  * Connects FastAPI Backend (port 8000) with real-time Chart.js telemetry,
  * TreeSHAP Explainability, Pre-Flight Monte Carlo Advisor & Data Quality Guard.
@@ -44,6 +44,7 @@ let chartGlobalShap = null;
 // Initialization
 document.addEventListener("DOMContentLoaded", () => {
   initCharts();
+  renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
   setupEventListeners();
   startBackendHealthMonitor();
   loadMissionsList();
@@ -77,7 +78,7 @@ async function checkBackendHealth() {
       pill.className = "backend-pill online";
       label.innerText = `ONLINE | ${pingMs}ms`;
       footerStatus.innerHTML = `<span style="color: var(--accent-green);">ONLINE (${pingMs}ms)</span>`;
-      
+
       // Fetch high-level performance metrics
       fetchPerformanceMetrics();
     } else {
@@ -102,7 +103,7 @@ async function fetchPerformanceMetrics() {
       const data = await res.json();
       document.getElementById('perfLatencyVal').innerText = `${data.ml.total_inference_pipeline_ms.toFixed(1)} ms`;
       document.getElementById('perfRamVal').innerText = `${data.system.memory_usage_mb} MB`;
-      
+
       const gradeBadge = document.getElementById('perfGradeBadge');
       gradeBadge.innerText = `${data.performance_grade.toUpperCase()} ⭐️`;
       if (data.performance_grade === 'excellent') gradeBadge.className = "badge-tag tag-ok";
@@ -115,7 +116,7 @@ async function fetchPerformanceMetrics() {
       const totalRps = epStats.reduce((sum, e) => sum + (e.throughput_rps || 0), 0);
       document.getElementById('perfRpsVal').innerText = `${Math.max(12.5, totalRps).toFixed(1)} RPS`;
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 // ==============================================================================
@@ -234,10 +235,28 @@ function pauseEngine() {
 
 async function resetLiveTwin() {
   pauseEngine();
+
+  // Reset live telemetry parameters to nominal
+  liveParams.injected_fault = 'none';
+  liveParams.fault_severity = 0.0;
+
+  // Reset fault injection UI controls
+  document.querySelectorAll('.btn-fault').forEach(b => b.classList.remove('active'));
+  const nominalBtn = document.querySelector('.btn-fault[data-fault="none"]');
+  if (nominalBtn) nominalBtn.classList.add('active');
+
+  const sliderSev = document.getElementById('sliderSeverity');
+  if (sliderSev) sliderSev.value = 0;
+  const txtSev = document.getElementById('txtSeverity');
+  if (txtSev) txtSev.innerText = '0% (Nominal)';
+
+  // Reset SHAP panel to clean empty state immediately
+  renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
+
   try {
     await fetch(`${API_BASE}/simulator/live/reset`, { method: 'POST' });
-  } catch (err) {}
-  
+  } catch (err) { }
+
   clearChartData();
   document.getElementById('missionTimeDisplay').innerText = "T+ 00:00";
   addTimelineEntry("INFO", "Digital Twin session reset to baseline nominal state.");
@@ -278,6 +297,19 @@ function renderCockpitFrame(data) {
   // 2. Primary Metrics
   document.getElementById('valHealthIndex').innerText = p.health_index.toFixed(2);
   document.getElementById('valAnomalyScore').innerText = ai.anomaly_score.toFixed(2);
+  const unitAnom = document.getElementById('unitAnomalyScore');
+  if (unitAnom) {
+    if (ai.anomaly_score >= 0.54 && (ai.predicted_fault === 'none' || !ai.predicted_fault) && p.health_index >= 0.95) {
+      unitAnom.innerText = "Ramp Transient (Monitoring)";
+      unitAnom.style.color = "var(--accent-sky)";
+    } else if (ai.anomaly_score > 0.65) {
+      unitAnom.innerText = "Elevated Variance";
+      unitAnom.style.color = "var(--accent-danger)";
+    } else {
+      unitAnom.innerText = "Isolation Forest";
+      unitAnom.style.color = "";
+    }
+  }
   document.getElementById('valRPM').innerText = Math.round(p.rpm).toLocaleString();
   document.getElementById('valCHT').innerText = `${p.sensor_cht.toFixed(1)} °C`;
   document.getElementById('valEGT').innerText = `${Math.round(p.egt)} °C`;
@@ -301,7 +333,7 @@ function renderCockpitFrame(data) {
   const dqHealthPct = Math.round((dq.overall_health || 1.0) * 100);
   document.getElementById('txtDqHealth').innerText = `${dqHealthPct}%`;
   document.getElementById('dqHealthFill').style.width = `${dqHealthPct}%`;
-  
+
   if (dqHealthPct < 70) document.getElementById('dqHealthFill').style.background = "var(--accent-danger)";
   else if (dqHealthPct < 90) document.getElementById('dqHealthFill').style.background = "var(--accent-amber)";
   else document.getElementById('dqHealthFill').style.background = "var(--accent-green)";
@@ -379,42 +411,60 @@ function renderCockpitFrame(data) {
     document.getElementById('recDivert').innerText = "No Action";
   }
 
-  // 9. Pilot Checklist Items
+  // 9. Operator Checklist Items
   const checklistBox = document.getElementById('checklistItems');
   if (adv.action_plan && adv.action_plan.length > 0) {
     checklistBox.innerHTML = adv.action_plan.map(step => `<div class="checklist-item">✓ ${step}</div>`).join('');
   }
 
   // 10. TreeSHAP Explainability Visual Horizontal Bars
-  renderShapBars(ai.explanation);
+  renderShapBars(ai);
 
   // 11. Push telemetry to Charts
   pushChartPoint(data.timestamp_s, p.sensor_cht, n.nominal_cht, p.egt, p.rpm, p.health_index, ai.anomaly_score);
 }
 
-function renderShapBars(explanation) {
+function renderShapBars(ai) {
   const container = document.getElementById('shapBarsContainer');
-  if (!explanation || !explanation.top_3_features || explanation.top_3_features.length === 0) {
+  if (!container) return;
+
+  const predictedFault = ai?.predicted_fault || 'none';
+  const confidence = typeof ai?.confidence === 'number' ? ai.confidence : 0.0;
+  const explanation = ai?.explanation;
+
+  const isFaultConditionMet = predictedFault !== 'none' && confidence > 0.60;
+
+  if (!isFaultConditionMet || !explanation || !explanation.top_3_features || explanation.top_3_features.length === 0) {
+    const reason = predictedFault === 'none'
+      ? 'Engine state nominal (no active fault detected)'
+      : confidence <= 0.60
+        ? `Confidence below threshold (${(confidence * 100).toFixed(1)}% <= 60%)`
+        : 'No explanation payload supplied';
+    console.log(`[SHAP Debug] Empty state active. Reason: ${reason} (fault=${predictedFault}, conf=${(confidence * 100).toFixed(1)}%)`);
+
     container.innerHTML = `
-      <div class="shap-quote" id="shapQuoteText">
-        "Engine operating inside nominal thermodynamic boundary. Zero anomaly attribution."
+      <div class="shap-empty-state" id="shapEmptyState">
+        ℹ️ No active fault — explainability panel activates when a fault is detected above 60% confidence.
       </div>
     `;
     return;
   }
 
+  console.log(`[SHAP Debug] Rendering fault attribution for '${predictedFault}' at ${(confidence * 100).toFixed(1)}% confidence.`);
+
   let html = '';
   explanation.top_3_features.forEach(feat => {
-    const isIncrease = feat.direction === 'increases';
+    const isIncrease = feat.direction && feat.direction.includes('increase');
     const widthPct = Math.min(100, Math.max(15, Math.abs(feat.shap_value) * 80));
     const fillClass = isIncrease ? "shap-feat-fill" : "shap-feat-fill decrease";
     const dirIcon = isIncrease ? "🔺" : "🔻";
+    const dirText = isIncrease ? "increases fault prob" : "decreases fault prob";
 
     html += `
       <div class="shap-feature-item">
         <div class="shap-feat-label">
           <span>${dirIcon} ${feat.feature_name} (${feat.current_value})</span>
-          <span style="color: ${isIncrease ? 'var(--accent-danger)' : 'var(--accent-sky)'};">${feat.direction} fault</span>
+          <span style="color: ${isIncrease ? 'var(--accent-danger)' : 'var(--accent-sky)'};">${dirText}</span>
         </div>
         <div class="shap-feat-bar-wrap">
           <div class="${fillClass}" style="width: ${widthPct}%;"></div>
@@ -424,8 +474,9 @@ function renderShapBars(explanation) {
     `;
   });
 
-  if (explanation.physics_narrative) {
-    html += `<div class="shap-quote">${explanation.physics_narrative}</div>`;
+  const narrative = explanation.physics_explanation || explanation.physics_narrative;
+  if (narrative) {
+    html += `<div class="shap-quote">${narrative}</div>`;
   }
   container.innerHTML = html;
 }
@@ -436,7 +487,7 @@ function updateSubsystemNode(nodeId, textId, healthVal) {
   const pct = Math.round(healthVal * 100);
 
   text.innerText = `${pct}% ${healthVal >= 0.85 ? 'HEALTHY' : healthVal >= 0.60 ? 'DEGRADED' : 'CRITICAL'}`;
-  
+
   if (healthVal >= 0.85) {
     text.className = "node-status nominal";
     node.style.borderColor = "var(--border-subtle)";
@@ -478,8 +529,8 @@ function addTimelineEntry(level, message) {
 
 function renderTimelineLog() {
   const logContainer = document.getElementById('timelineLog');
-  const filtered = activeTimelineFilter === 'all' 
-    ? eventLog 
+  const filtered = activeTimelineFilter === 'all'
+    ? eventLog
     : eventLog.filter(e => e.level === activeTimelineFilter);
 
   logContainer.innerHTML = filtered.map(e => `
@@ -571,7 +622,7 @@ async function openGlobalShapModal() {
       const feats = data.top_10_global_features || data.top_10_features || [];
       renderGlobalShapChart(feats);
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function renderGlobalShapChart(features) {
@@ -660,6 +711,7 @@ function setupEventListeners() {
         sliderSev.value = 0;
         liveParams.fault_severity = 0.0;
         document.getElementById('txtSeverity').innerText = '0% (Nominal)';
+        renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
       } else if (sliderSev.value == 0) {
         sliderSev.value = 65;
         liveParams.fault_severity = 0.65;
@@ -777,7 +829,7 @@ async function loadMissionsList() {
         loadMissionForReplay(data.missions[0].filename);
       }
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 async function loadMissionForReplay(filename) {
@@ -792,7 +844,7 @@ async function loadMissionForReplay(filename) {
     if (res.ok) {
       const data = await res.json();
       const rawFrames = data.telemetry || data.playback_frames || [];
-      
+
       replayData = rawFrames.map(f => {
         if (f.physical_telemetry) return f;
 
@@ -915,6 +967,7 @@ function resetReplayPlayback() {
   pauseEngine();
   replayIndex = 0;
   clearChartData();
+  renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
   startReplayPlayback();
 }
 

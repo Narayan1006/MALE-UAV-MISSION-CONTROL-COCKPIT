@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-MALE UAV Digital Twin API High-Throughput Benchmarking Tool
+AeroTwin Aircraft Engine Digital Twin API High-Throughput Benchmarking Tool
 ===========================================================
 Usage:
   python scripts/benchmark.py
@@ -72,7 +72,7 @@ async def benchmark_endpoint_concurrent(
 
 async def main():
     print("\n" + "=" * 78)
-    print(" [*] MALE UAV DIGITAL TWIN API HIGH-THROUGHPUT BENCHMARK")
+    print(" [*] AeroTwin Aircraft Engine Digital Twin API HIGH-THROUGHPUT BENCHMARK")
     print("=" * 78)
 
     endpoints = [
