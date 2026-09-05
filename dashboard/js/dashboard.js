@@ -45,6 +45,7 @@ let chartGlobalShap = null;
 document.addEventListener("DOMContentLoaded", () => {
   initCharts();
   renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
+  updateSquawkIndicator({ forceHide: true });
   setupEventListeners();
   startBackendHealthMonitor();
   loadMissionsList();
@@ -250,7 +251,15 @@ async function resetLiveTwin() {
   const txtSev = document.getElementById('txtSeverity');
   if (txtSev) txtSev.innerText = '0% (Nominal)';
 
-  // Reset SHAP panel to clean empty state immediately
+  // Reset Emergency Banner, Squawk indicator & SHAP panel to clean empty state immediately
+  const emBanner = document.getElementById('emergencyBanner');
+  if (emBanner) emBanner.className = "emergency-banner NOMINAL";
+  const emTitle = document.getElementById('emBannerTitle');
+  if (emTitle) emTitle.innerText = "ENGINE STATE: NOMINAL";
+  const emConf = document.getElementById('emBannerConf');
+  if (emConf) emConf.innerText = "100% Conf";
+
+  updateSquawkIndicator({ forceHide: true });
   renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
 
   try {
@@ -346,14 +355,15 @@ function renderCockpitFrame(data) {
   const emBanner = document.getElementById('emergencyBanner');
   const emTitle = document.getElementById('emBannerTitle');
   const emConf = document.getElementById('emBannerConf');
-  const squawkBox = document.getElementById('squawkIndicator');
   const isCritical = ai.predicted_fault !== 'none' && p.health_index < 0.88;
+
+  const advEmLevel = adv.emergency_level || (adv.level ? adv.level.toLowerCase() : (isCritical ? 'critical' : (ai.anomaly_score > 0.65 ? 'warning' : 'nominal')));
+  const isDivRec = adv.diversion_recommended !== undefined ? Boolean(adv.diversion_recommended) : (isCritical && p.health_index < 0.88);
 
   if (isCritical) {
     emBanner.className = "emergency-banner CRITICAL";
     emTitle.innerText = `ENGINE STATE: CRITICAL (${ai.predicted_fault.toUpperCase()} DETECTED)`;
     emConf.innerText = `${(ai.confidence * 100).toFixed(0)}% Conf`;
-    squawkBox.classList.add('active');
 
     if (lastFaultDetected !== ai.predicted_fault) {
       lastFaultDetected = ai.predicted_fault;
@@ -364,14 +374,18 @@ function renderCockpitFrame(data) {
     emBanner.className = "emergency-banner WARNING";
     emTitle.innerText = `ENGINE STATE: WARNING (${ai.predicted_fault.toUpperCase()})`;
     emConf.innerText = `${(ai.confidence * 100).toFixed(0)}% Conf`;
-    squawkBox.classList.remove('active');
   } else {
     emBanner.className = "emergency-banner NOMINAL";
     emTitle.innerText = "ENGINE STATE: NOMINAL";
     emConf.innerText = "100% Conf";
-    squawkBox.classList.remove('active');
     lastFaultDetected = "none";
   }
+
+  updateSquawkIndicator({
+    emergencyLevel: advEmLevel,
+    diversionRecommended: isDivRec,
+    predictedFault: ai.predicted_fault || 'none'
+  });
 
   // 7. High-Impact Big Digital RUL Countdown Timer
   const rulValElem = document.getElementById('valDigitalRUL');
@@ -479,6 +493,33 @@ function renderShapBars(ai) {
     html += `<div class="shap-quote">${narrative}</div>`;
   }
   container.innerHTML = html;
+}
+
+function updateSquawkIndicator(options = {}) {
+  const squawkBox = document.getElementById('squawkIndicator');
+  if (!squawkBox) return;
+
+  const {
+    emergencyLevel = 'nominal',
+    diversionRecommended = false,
+    predictedFault = 'none',
+    forceHide = false
+  } = options;
+
+  const emLevel = (emergencyLevel || '').toLowerCase();
+  const isCritical = (emLevel === 'critical');
+  const isDivert = diversionRecommended === true;
+
+  // Squawk 7700 only displays when emergency_level == "critical" AND diversion_recommended == true AND fault is active
+  const shouldShow = !forceHide && predictedFault !== 'none' && isCritical && isDivert;
+
+  if (shouldShow) {
+    squawkBox.style.display = 'block';
+    squawkBox.classList.add('active');
+  } else {
+    squawkBox.style.display = 'none';
+    squawkBox.classList.remove('active');
+  }
 }
 
 function updateSubsystemNode(nodeId, textId, healthVal) {
@@ -712,6 +753,13 @@ function setupEventListeners() {
         liveParams.fault_severity = 0.0;
         document.getElementById('txtSeverity').innerText = '0% (Nominal)';
         renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
+        updateSquawkIndicator({ forceHide: true });
+        const emBanner = document.getElementById('emergencyBanner');
+        if (emBanner) emBanner.className = "emergency-banner NOMINAL";
+        const emTitle = document.getElementById('emBannerTitle');
+        if (emTitle) emTitle.innerText = "ENGINE STATE: NOMINAL";
+        const emConf = document.getElementById('emBannerConf');
+        if (emConf) emConf.innerText = "100% Conf";
       } else if (sliderSev.value == 0) {
         sliderSev.value = 65;
         liveParams.fault_severity = 0.65;
@@ -968,6 +1016,9 @@ function resetReplayPlayback() {
   replayIndex = 0;
   clearChartData();
   renderShapBars({ predicted_fault: 'none', confidence: 1.0, explanation: null });
+  updateSquawkIndicator({ forceHide: true });
+  const emBanner = document.getElementById('emergencyBanner');
+  if (emBanner) emBanner.className = "emergency-banner NOMINAL";
   startReplayPlayback();
 }
 

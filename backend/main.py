@@ -1,4 +1,4 @@
-﻿"""
+"""
 FastAPI Telemetry, Live Interactive Digital Twin & Mission Replay Server
 ========================================================================
 Endpoints:
@@ -436,16 +436,18 @@ def step_live_simulation(req: LiveSimStepRequest):
 
     # 6. Actionable Flight Engineer Advisory Generation
     t0_adv = time.perf_counter()
-    if pred_fault != "none" and p_state.health_index < 0.92:
+    if pred_fault != "none" and (p_state.health_index < 0.90 or req.fault_severity > 0.70 or (pred_rul is not None and pred_rul < 600)):
         advisory_level = "CRITICAL"
+        diversion_recommended = True
         action_plan = [
             f"1. Reduce throttle to {(req.throttle * 0.75):.2f} to lower thermal load.",
             "2. Pitch down slightly to maintain airspeed for cylinder head ram-air cooling.",
             f"3. INITIATE DIVERT: Estimated safe flight window is {pred_rul or 0:.0f} seconds.",
             "4. Alert Mission Control and squawk 7700 emergency."
         ]
-    elif anom_score > 0.65 and p_state.health_index < 0.88:
+    elif pred_fault != "none" or (anom_score > 0.65 and p_state.health_index < 0.95):
         advisory_level = "WARNING"
+        diversion_recommended = False
         action_plan = [
             "1. Multichannel telemetry variance exceeding nominal band.",
             "2. Monitor oil pressure and CHT trend.",
@@ -453,6 +455,7 @@ def step_live_simulation(req: LiveSimStepRequest):
         ]
     else:
         advisory_level = "NOMINAL"
+        diversion_recommended = False
         action_plan = [
             "All engine systems operating within FAA/aviation-standard certified limits.",
             "Cruise parameters nominal. No Operator intervention required."
@@ -480,7 +483,7 @@ def step_live_simulation(req: LiveSimStepRequest):
         "physical_telemetry": {
             "rpm": round(cleaned_frame.get("rpm", p_state.rpm), 1),
             "true_cht": round(cleaned_frame.get("true_cht", p_state.cht), 1),
-            "sensor_cht": round(cleaned_frame.get("sensor_cht", sensor_cht), 1),
+            "sensor_cht": round(cleaned_frame.get("sensor_cht", p_state.cht), 1),
             "egt": round(cleaned_frame.get("egt", p_state.egt), 1),
             "oil_pressure": round(cleaned_frame.get("oil_pressure", p_state.oil_pressure), 1),
             "oil_temp": round(cleaned_frame.get("oil_temp", p_state.oil_temp), 1),
@@ -517,6 +520,9 @@ def step_live_simulation(req: LiveSimStepRequest):
         },
         "advisory": {
             "level": advisory_level,
+            "emergency_level": advisory_level.lower(),
+            "diversion_recommended": diversion_recommended,
+            "squawk_7700": bool(advisory_level == "CRITICAL" and diversion_recommended),
             "action_plan": action_plan
         },
         "performance": {
